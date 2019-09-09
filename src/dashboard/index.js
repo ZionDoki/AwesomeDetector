@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import { Switch, Route } from 'react-router-dom';
 import { CssBaseline, AppBar, Toolbar, IconButton, Typography, makeStyles, Drawer, Divider, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -7,9 +8,16 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import LayersIcon from '@material-ui/icons/Layers';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import PeopleIcon from '@material-ui/icons/People';
+import SpeedTest from './speedTest';
+import AttackTest from './attackTest';
+import Manage from './manage';
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
+    root: {
+        display: 'flex',
+    },
     appBar: {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,
@@ -34,15 +42,22 @@ const useStyles = makeStyles(theme => ({
         width: drawerWidth,
     },
     drawerPaperClose: {
-        width: theme.spacing(7),
+        width: theme.spacing(8),
     },
     drawerCloseButton: {
         display: 'flex',
         justifyContent: 'flex-end',
         padding: '0 8px',
         alignItems: 'center', 
-        ...theme.mixins.toolbar,
-    }
+        ...theme.mixins.toolbar, //令侧边栏关闭按钮与导航栏等高
+    },
+    content: {
+        height: '100vh',
+        // border: 'solid 10px #777',
+        flexGrow: 1,
+        overflow: 'auto',
+    },
+    appBarSpacer: theme.mixins.toolbar,
 }));
 
 export default function Dashboard(props){
@@ -50,10 +65,10 @@ export default function Dashboard(props){
     const [open, setOpen] = React.useState(true);
     const handleDrawerOpen = () => { setOpen(true); };
     const handleDrawerClose = () => { setOpen(false) };
-    const { user_key, setKey, signOut } = props;
+    const { user_key, setKey, signOut, match, history } = props;
 
     return (
-       <div>
+       <div className={classes.root}>
            <CssBaseline />
             <AppBar 
                 position='absolute'
@@ -96,19 +111,19 @@ export default function Dashboard(props){
                 </div>
                 <Divider />
                 <List>
-                    <ListItem button component='a' href='/dashboard'>
+                    <ListItem button component='a' href={`${match.url}`}>
                         <ListItemIcon>
                             <BarChartIcon />
                         </ListItemIcon>
-                        <ListItemText primary='测速' />
+                        <ListItemText primary='网络测速' />
                     </ListItem>
-                    <ListItem button component='a' href='/dashboard/attack'>
+                    <ListItem button component='a' href={`${match.url}/attack`}>
                         <ListItemIcon>
                             <LayersIcon />
                         </ListItemIcon>
                         <ListItemText primary='洪水攻击测试' />
                     </ListItem>
-                    <ListItem button component='a' href='/dashboard/management'>
+                    <ListItem button component='a' href={`${match.url}/manage`}>
                         <ListItemIcon>
                             <PeopleIcon />
                         </ListItemIcon>
@@ -116,6 +131,14 @@ export default function Dashboard(props){
                     </ListItem>
                 </List>
             </Drawer>
+            <main className={classes.content}>
+               <div className={classes.appBarSpacer} /> 
+                    <Switch>
+                        <Route exact path={`${match.url}`} render={() => <SpeedTest history={history} match={match} user_key={user_key} />} />
+                        <Route path={`${match.url}/attack`} render={() => <AttackTest history={history} match={match} user_key={user_key} />} />
+                        <Route path={`${match.url}/manage`} render={() => <Manage history={history} match={match} user_key={user_key} />} />
+                    </Switch> 
+            </main>
        </div>
     );
 }
