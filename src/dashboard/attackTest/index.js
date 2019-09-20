@@ -55,7 +55,7 @@ export default function AttackTest(props) {
                 <Divider />
                 <List>
                     {onlineMachineList.map((value, index) => (
-                        <ListItem>
+                        <ListItem key={index}>
                             <ListItemIcon>
                                 <ComputerIcon />
                             </ListItemIcon>
