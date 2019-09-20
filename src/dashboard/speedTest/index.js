@@ -43,8 +43,8 @@ export default function SpeedTest(props) {
                 </Typography>
                 <Divider />
                 <List>
-                    {onlineMachineList.map(value => (
-                        <ListItem>
+                    {onlineMachineList.map((value, index) => (
+                        <ListItem key={index}>
                             <ListItemIcon>
                                 <Computer />
                             </ListItemIcon>
