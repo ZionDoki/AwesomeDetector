@@ -60,6 +60,8 @@ const useStyles = makeStyles(theme => ({
     appBarSpacer: theme.mixins.toolbar,
 }));
 
+
+
 export default function Dashboard(props){
     const classes = useStyles();
     const [open, setOpen] = React.useState(true);
@@ -67,6 +69,12 @@ export default function Dashboard(props){
     const handleDrawerClose = () => { setOpen(false) };
     const { user_key, setKey, signOut, match, history } = props;
 
+    componentDidMount = () => {
+        if(localStorage.getItem('user_key') != null)
+            setKey(localStorage.getItem('user_key'));
+        else if(user_key === null)
+            history.push('/login');
+    }
     return (
        <div className={classes.root}>
            <CssBaseline />
