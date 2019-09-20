@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import Dashboard from './dashboard';
+import Dashboard from './dashboard/classDashboard';
 import Login from './login';
 
 
@@ -27,18 +27,18 @@ class App extends React.Component {
 
   render() {
     const { key } = this.state;
-    const local_key = localStorage.getItem('local_key');
+    // const local_key = localStorage.getItem('local_key');
     return (
       <Router>
         <Switch>
           <Route exact path='/' render={() => <Redirect to='/dashboard' />} />
           <Route 
             path='/dashboard'
-            render={({history, match}) => <Dashboard history={history} match={match} user_key={local_key ? local_key : key} setKey={this.setKey} signOut={this.signOut} />}
+            render={({history, match}) => <Dashboard history={history} match={match} user_key={key} setKey={this.setKey} signOut={this.signOut} />}
           />
           <Route
             path="/login"
-            render={({history, match}) => <Login history={history} match={match} user_key={local_key ? local_key : key} setKey={this.setKey} signOut={this.signOut} />}
+            render={({history, match}) => <Login history={history} match={match} user_key={key} setKey={this.setKey} signOut={this.signOut} />}
           />
         </Switch>
       </Router>
