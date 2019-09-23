@@ -130,6 +130,8 @@ class Dashboard extends React.Component{
                     return '洪水攻击测试';
                 case '/dashboard/manage':
                     return '用户管理';
+                case '/dashboard/speedtest':
+                    return '网络测速';
             }
         };
 
