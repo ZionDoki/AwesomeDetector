@@ -8,7 +8,9 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import LayersIcon from '@material-ui/icons/Layers';
 import BarChartIcon from '@material-ui/icons/BarChart';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import PeopleIcon from '@material-ui/icons/People';
+import Overview from './overview';
 import SpeedTest from './speedTest';
 import AttackTest from './attackTest';
 import Manage from './manage';
@@ -187,7 +189,13 @@ class Dashboard extends React.Component{
                          </Typography>
                      </div>
                      <List>
-                         <ListItem button component='button' onClick={ () => handleClick(`${match.url}`) }>
+                        <ListItem button component='button' onClick={ () => handleClick(`${match.url}`) }>
+                             <ListItemIcon style={{color: '#FFF'}} >
+                                 <AssignmentIcon />
+                             </ListItemIcon>
+                             <ListItemText primary='信息总览' style={{color: '#FFF'}} />
+                         </ListItem>
+                         <ListItem button component='button' onClick={ () => handleClick(`${match.url}/speedtest`) }>
                              <ListItemIcon style={{color: '#FFF'}} >
                                  <BarChartIcon />
                              </ListItemIcon>
@@ -212,7 +220,8 @@ class Dashboard extends React.Component{
                  <main className={classes.content}>
                     <div className={classes.appBarSpacer} /> 
                          <Switch>
-                             <Route exact path={`${match.url}`} render={() => <SpeedTest history={history} match={match} user_key={user_key} />} />
+                             <Route exact path={`${match.url}`} render={() => <Overview history={history} match={match} user_key={user_key} />} />
+                             <Route path={`${match.url}/speedtest`} render={() => <SpeedTest history={history} match={match} user_key={user_key} />} />
                              <Route path={`${match.url}/attack`} render={() => <AttackTest history={history} match={match} user_key={user_key} />} />
                              <Route path={`${match.url}/manage`} render={() => <Manage history={history} match={match} user_key={user_key} />} />
                          </Switch> 
