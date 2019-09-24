@@ -7,15 +7,16 @@ import Computer from '@material-ui/icons/Computer';
 
 const useStyles = makeStyles(theme => ({
     container: {
-        marginTop: theme.spacing(4),
-        marginBottom: theme.spacing(4),
+        marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
     },
     title: {
         padding: theme.spacing(1),
-        // marginLeft: theme.spacing(2),
+        fontWeight: 600,
     },
     button: {
         marginRight: theme.spacing(2),
+        backgroundColor: '#00bcd4'
     },
     dataDisplay: {
         marginTop: theme.spacing(1),
@@ -30,34 +31,35 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-{/* 自定义TableHead的样式*/}
+{/* 自定义Table的样式*/}
 const StyledTableCell = withStyles(theme => ({
     head: {
-        backgroundColor: '#2196f3',
+        backgroundColor: '#66bb6a',
         color: '#fff',
-        fontSize: 15,
+        fontSize: 17,
     },
     body: {
-        backgroundColor: '#42a5f5',
-        color: '#fff',
+        fontSize: 15,
+        // fontWeight: 550,
+        // backgroundColor: '#42a5f5',
+        // color: '#fff',
     },
 }))(TableCell);
 
 export default function SpeedTest(props) {
     const classes = useStyles();
     const onlineMachineList = [
-        'Machine-1',
-        'Machine-2',
-        'Machine-3',
-        'Machine-4',
-        'Machine-5',
-        'Machine-6',
-        'Machine-7',
-        'Machine-8',
-        'Machine-9',
-        'Machine-10',
-        'Machine-11',
-        'Machine-12',
+        {name:'Machine-1', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-2', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-3', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-4', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-5', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-6', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-7', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-8', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-9', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-10', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
+        {name:'Machine-11', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
     ];
     const data = [
         {time: '12:00', us: 300, ds: 500},
@@ -79,13 +81,8 @@ export default function SpeedTest(props) {
 
     return (
         <Container maxWidth='lg' className={classes.container} >
-            <Paper>
-                <Typography component='h4' variant='h6' className={classes.title} >
-                    在线设备网络测速
-                </Typography>
-                <Divider />
-                <Grid container spacing={3} className={classes.dataDisplay}>
-                    <Grid item xs={12} md={8} lg={8}>
+                <Grid container spacing={2} className={classes.dataDisplay}>
+                    <Grid item xs={12} md={8} lg={9}>
                         <Paper className={classes.paperHeight}>
                             {/* <React.Fragment> */}
                                 <Typography  color='primary' component='h4' variant='h6' className={classes.title} >
@@ -93,8 +90,8 @@ export default function SpeedTest(props) {
                                 </Typography> 
                                 <ResponsiveContainer width='90%' height='83%'>
                                     <LineChart data={data} margin={{top: 10, right: 10, bottom: 5, left: 20}}>
-                                        <Line unit='bps' name='上行速率' type='monotone' dataKey='us' stroke='#556cd6' />
-                                        <Line unit='bps' name='下行速率' type='monotone' dataKey='ds' stroke='#ff5722' />
+                                        <Line unit='bps' name='上行速率' type='monotone' dataKey='us' stroke='#00bcd4' />
+                                        <Line unit='bps' name='下行速率' type='monotone' dataKey='ds' stroke='#8884d8' />
                                         <XAxis dataKey='time'>
                                             <Label value='时间' position='insideBottomRight' offset={-7} />
                                         </XAxis>
@@ -106,7 +103,7 @@ export default function SpeedTest(props) {
                             {/* </React.Fragment> */}
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} md={3} lg={3}>
+                    <Grid item xs={12} md={4} lg={3}>
                         <Paper className={classes.paperHeight}>
                             <Typography component='h4' variant='h6' color='primary' className={classes.title}>
                                 Ping
@@ -132,21 +129,29 @@ export default function SpeedTest(props) {
                         </Paper>
                     </Grid>
                 </Grid>
-                <List>
-                    {onlineMachineList.map((value, index) => (
-                       <ListItem key={index} button>
-                            <ListItemIcon>
-                                <Computer />
-                            </ListItemIcon>
-                            <ListItemText primary={value} secondary='Information about online devices' />
-                            <ListItemSecondaryAction>
-                                <Button variant='outlined' color='primary' className={classes.button} >Ping 路由跳数 延迟</Button>
-                                <Button variant='outlined' color='primary' >上/下行速度</Button>
-                            </ListItemSecondaryAction>
-                       </ListItem>
-                    ))} 
-                </List>
-            </Paper>
+                <Grid container className={classes.dataDisplay}>
+                    <Grid item lg={12} md={12} xs={12}>
+                        <Paper style={{height: '480px', margin: '10px'}}>
+                            <Typography component='h4' variant='h6' className={classes.title} color='primary'>在线设备</Typography>
+                            <div style={{height: '420px', overflowY: 'scroll'}}>
+                                <List>
+                                    {onlineMachineList.map((item, index) => (
+                                        <ListItem key={index} button>
+                                            <ListItemIcon>
+                                                <Computer />
+                                            </ListItemIcon>
+                                            <ListItemText primary={item.name} secondary={`IP地址：${item.ip} MAC地址：${item.mac} 操作系统：${item.os}`} />
+                                            <ListItemSecondaryAction>
+                                                <Button variant='contained' color='secondary' className={classes.button} >Ping 路由跳数 延迟</Button>
+                                                <Button variant='contained' color='secondary' className={classes.button} >上/下行速度</Button>
+                                            </ListItemSecondaryAction>
+                                        </ListItem>
+                                    ))} 
+                                </List>
+                            </div>
+                        </Paper>
+                    </Grid>
+                </Grid>
         </Container>
     );
 }
