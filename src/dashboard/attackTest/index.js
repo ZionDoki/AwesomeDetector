@@ -1,6 +1,9 @@
 import React from 'react';
 import { makeStyles, Container, Paper, Typography, Divider, Button, Modal, Backdrop, Fade } from '@material-ui/core';
-import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from '@material-ui/core';
+import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction, createMuiTheme } from '@material-ui/core';
+import { Card, CardHeader, CardContent } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/styles';
+import { cyan } from '@material-ui/core/colors';
 import ComputerIcon from '@material-ui/icons/Computer';
 
 const useStyles = makeStyles(theme => ({
@@ -9,7 +12,7 @@ const useStyles = makeStyles(theme => ({
         marginBottom: theme.spacing(4),
     },
     title: {
-        padding: theme.spacing(2),
+        padding: theme.spacing(1),
         fontWeight: 600,
     },
     button: {
@@ -23,10 +26,16 @@ const useStyles = makeStyles(theme => ({
     paper: {
         backgroundColor: theme.palette.background.paper,
         // border: '5px solid #fff',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 10, 2),
+        // boxShadow: theme.shadows[5],
+        // padding: theme.spacing(2, 10, 2),
     },
 }));
+
+const theme = createMuiTheme({
+    palette: {
+        primary: cyan,
+    },
+});
 
 export default function AttackTest(props) {
     const classes = useStyles();
@@ -56,7 +65,7 @@ export default function AttackTest(props) {
     return (
         <Container maxWidth='lg' className={classes.container}>
             <Paper style={{height:'85vh'}}>
-                <Typography component='h2' variant='h6' color='primary' className={classes.title}>
+                <Typography variant='subtitle1' color='primary' className={classes.title}>
                     在线设备洪水攻击测试
                 </Typography>
                 <Divider />
@@ -69,9 +78,11 @@ export default function AttackTest(props) {
                             </ListItemIcon>
                             <ListItemText primary={item.name} secondary={`IP地址：${item.ip} MAC地址：${item.mac} 操作系统：${item.os}`} />
                             <ListItemSecondaryAction>
+                              <ThemeProvider theme={theme}>
                                 <Button variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >SYN洪水</Button>
                                 <Button variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >UDP洪水</Button>
                                 <Button variant='contained' color='primary' onClick={() => handleOpen(index)} >HTTP长连接</Button>
+                              </ThemeProvider>
                             </ListItemSecondaryAction>
                         </ListItem>
                     ))}
@@ -94,13 +105,17 @@ export default function AttackTest(props) {
                 >
                     <Fade in={open}>
                         <div className={classes.paper}>
-                            <h3>当前设备信息</h3>
-                            <p>{`设备名称：${onlineMachineList[num].name}`}</p>
-                            <p>{`IP地址：${onlineMachineList[num].ip}`}</p>
-                            <p>{`MAC地址：${onlineMachineList[num].mac}`}</p>
-                            <p>{`操作系统：${onlineMachineList[num].os}`}</p>
-                            <h3>当前流量</h3>
-                            <p>{traffic}</p>
+                            <Card style={{padding:'10px 30px'}}>
+                                <CardHeader title='测试结果' />
+                                <CardContent>
+                                    <h3>当前设备信息</h3>
+                                    <p style={{whiteSpace: 'pre'}}>设备名称：{onlineMachineList[num].name}      IP地址：{onlineMachineList[num].ip}</p>
+                                    <p style={{whiteSpace: 'pre'}}>MAC地址：{onlineMachineList[num].mac}      操作系统：{onlineMachineList[num].os}</p>
+                                    <h3>当前流量</h3>
+                                    <p>{traffic}</p>
+                                </CardContent>
+                            </Card>
+
                         </div>
                     </Fade>
                 </Modal>
