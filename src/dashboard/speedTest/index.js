@@ -1,7 +1,9 @@
 import React from 'react';
-import { Table, TableHead, TableBody, TableRow, TableCell, withStyles } from '@material-ui/core';
+import { Table, TableHead, TableBody, TableRow, TableCell, withStyles, createMuiTheme } from '@material-ui/core';
 import { makeStyles, Paper, Container, Button, Typography, Divider, Grid} from '@material-ui/core';
 import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/styles';
+import { cyan } from '@material-ui/core/colors';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Label, Tooltip, Legend } from 'recharts';
 import Computer from '@material-ui/icons/Computer';
 
@@ -16,7 +18,6 @@ const useStyles = makeStyles(theme => ({
     },
     button: {
         marginRight: theme.spacing(2),
-        backgroundColor: '#00bcd4'
     },
     dataDisplay: {
         marginTop: theme.spacing(1),
@@ -40,11 +41,14 @@ const StyledTableCell = withStyles(theme => ({
     },
     body: {
         fontSize: 15,
-        // fontWeight: 550,
-        // backgroundColor: '#42a5f5',
-        // color: '#fff',
     },
 }))(TableCell);
+
+const theme = createMuiTheme({
+    palette: {
+      primary: cyan,
+    },
+});
 
 export default function SpeedTest(props) {
     const classes = useStyles();
@@ -85,9 +89,10 @@ export default function SpeedTest(props) {
                     <Grid item xs={12} md={8} lg={9}>
                         <Paper className={classes.paperHeight}>
                             {/* <React.Fragment> */}
-                                <Typography  color='primary' component='h4' variant='h6' className={classes.title} >
+                                <Typography  color='primary' variant='subtitle1' className={classes.title} >
                                     上/下行速度
                                 </Typography> 
+                                <Divider />
                                 <ResponsiveContainer width='90%' height='83%'>
                                     <LineChart data={data} margin={{top: 10, right: 10, bottom: 5, left: 20}}>
                                         <Line unit='bps' name='上行速率' type='monotone' dataKey='us' stroke='#00bcd4' />
@@ -105,9 +110,10 @@ export default function SpeedTest(props) {
                     </Grid>
                     <Grid item xs={12} md={4} lg={3}>
                         <Paper className={classes.paperHeight}>
-                            <Typography component='h4' variant='h6' color='primary' className={classes.title}>
+                            <Typography variant='subtitle1' color='primary' className={classes.title}>
                                 Ping
                             </Typography> 
+                            <Divider />
                             <Paper style={{margin: '12px'}}>
                                 <Table className={classes.table}>
                                     <TableHead>
@@ -132,7 +138,8 @@ export default function SpeedTest(props) {
                 <Grid container className={classes.dataDisplay}>
                     <Grid item lg={12} md={12} xs={12}>
                         <Paper style={{height: '480px', margin: '10px'}}>
-                            <Typography component='h4' variant='h6' className={classes.title} color='primary'>在线设备</Typography>
+                            <Typography variant='subtitle1' className={classes.title} color='primary'>在线设备</Typography>
+                            <Divider />
                             <div style={{height: '420px', overflowY: 'scroll'}}>
                                 <List>
                                     {onlineMachineList.map((item, index) => (
@@ -142,8 +149,10 @@ export default function SpeedTest(props) {
                                             </ListItemIcon>
                                             <ListItemText primary={item.name} secondary={`IP地址：${item.ip} MAC地址：${item.mac} 操作系统：${item.os}`} />
                                             <ListItemSecondaryAction>
-                                                <Button variant='contained' color='secondary' className={classes.button} >Ping 路由跳数 延迟</Button>
-                                                <Button variant='contained' color='secondary' className={classes.button} >上/下行速度</Button>
+                                                <ThemeProvider theme={theme}>
+                                                    <Button variant='contained' color='primary' className={classes.button} >Ping 路由跳数 延迟</Button>
+                                                    <Button variant='contained' color='primary' className={classes.button} >上/下行速度</Button>
+                                                </ThemeProvider>
                                             </ListItemSecondaryAction>
                                         </ListItem>
                                     ))} 
