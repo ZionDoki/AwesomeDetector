@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControlLabel, Checkbox } from '@material-ui/core';
+import { FormControlLabel, Checkbox, Dialog, DialogContent, DialogContentText } from '@material-ui/core';
 import { makeStyles, Container, Avatar, Typography, TextField, Button, InputAdornment, IconButton } from '@material-ui/core';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -7,7 +7,7 @@ import Lock from '@material-ui/icons/Lock';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
-
+import SignIn from '../api/signIn';
 
 const useStyles = makeStyles(theme => ({
     box: {
@@ -27,8 +27,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function Login(props) {
     const classes = useStyles();
-    const { setKey, history } = props;
+    const { history } = props;
     const [showPassword, setShowPassword] = React.useState(false);
+    const [dialogOpen, setDialogOpen] = React.useState(false);
     const [values, setValues] = React.useState({
         username: '',
         password: '',
@@ -37,15 +38,23 @@ export default function Login(props) {
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
     };
+    const handleDialogClose = () => {
+        setDialogOpen(false);
+    }
     const handleChange = name => event => {
         if(name === 'remember')
             setValues({ ...values, [name]: event.target.checked });
         else setValues({ ...values, [name]: event.target.value });
     };
-    const handleSubmit = event => {
-        {/* 提交表单 */}
-        setKey(values.password, values.remember);
-        history.push('/dashboard');
+    const handleSubmit = () => {
+        SignIn(values.username, values.password).then(res => {
+            if(res.body.status) {
+                history.push('/dashboard');
+            }
+            else {
+               setDialogOpen(true);
+            }
+        }).catch( err => console.log(err) );
     };
 
     return (
@@ -121,6 +130,11 @@ export default function Login(props) {
                     </Button>
                 </form>
             </div>
+            <Dialog open={dialogOpen} onClose={handleDialogClose}>
+                <DialogContent>
+                    <DialogContentText>登录失败！</DialogContentText>
+                </DialogContent>
+            </Dialog>
         </Container>
     );
 }

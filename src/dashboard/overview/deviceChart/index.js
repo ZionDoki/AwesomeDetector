@@ -38,7 +38,7 @@ export default function DeviceChart() {
                         <Tooltip />                       
                         <XAxis dataKey='time' label={{value:'时间', position:'bottom', offset:'-7'}} />
                         <YAxis />
-                        <Bar name='数量' dataKey='num' fill='#8884d8' barSize={15} barGap={10} />
+                        <Bar name='数量' unit='台' dataKey='num' fill='#8884d8' barSize={15} barGap={10} />
                     </BarChart>
                 </ResponsiveContainer>
               </div>

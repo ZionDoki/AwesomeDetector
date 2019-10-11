@@ -16,6 +16,7 @@ import AttackTest from './attackTest';
 import Manage from './manage';
 import reactLogo from './reactlogo.png';
 import sideImg from './sideImg.jpg';
+import Poll from '../api/poll';
 
 
 const drawerWidth = 240;
@@ -103,12 +104,19 @@ class Dashboard extends React.Component{
     }
 
     componentDidMount() {
-        if(!this.props.user_key) {
-            if(localStorage.getItem('local_key') != null)
-                this.props.setKey(localStorage.getItem('local_key'));
-            else 
-                this.props.history.push('/login');
+        const polling = () => {
+            Poll().then(res => {
+                if(!res.body.status)
+                    this.props.history.push('/login');
+            }).catch( err => console.log(err) );
         }
+        setInterval(polling, 3000);
+        // if(!this.props.user_key) {
+        //     if(localStorage.getItem('local_key') != null)
+        //         this.props.setKey(localStorage.getItem('local_key'));
+        //     else 
+        //         this.props.history.push('/login');
+        // }
     }
 
     Logout = () => {
