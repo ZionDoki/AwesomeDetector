@@ -1,6 +1,8 @@
 import request from 'superagent';
 import {testIP, test} from './serverIP';
 
+const agent = request.agent();
+
 export default function SignIn(username, password) {
   let url = "/api/v1/login";
   if(test) url = testIP + url;
@@ -8,8 +10,9 @@ export default function SignIn(username, password) {
     username: username, 
     password: password
   }
-  return request.post(url)
+  return agent.post(url)
     .type('json')
     .send(data)
+    .withCredentials()
     .accept('application/json');
 }

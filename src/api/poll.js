@@ -1,9 +1,14 @@
 import request from 'superagent';
 import { testIP, test } from './serverIP';
 
+const agent = request.agent();
+
 export default function Poll() {
     let url = '/api/v1/is/signed';
     if(test) url = testIP + url;
 
-    return request.get(url).accept('application/json');
+    return agent
+        .get(url)
+        .withCredentials()
+        .accept('application/json');
 }
