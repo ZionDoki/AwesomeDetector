@@ -46,8 +46,10 @@ export default function Login(props) {
             setValues({ ...values, [name]: event.target.checked });
         else setValues({ ...values, [name]: event.target.value });
     };
-    const handleSubmit = () => {
+    const handleSubmit = (e) => {
+        e.preventDefault();
         SignIn(values.username, values.password).then(res => {
+            console.log(res);
             if(res.body.status) {
                 history.push('/dashboard');
             }
