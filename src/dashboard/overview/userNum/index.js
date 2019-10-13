@@ -39,9 +39,9 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
-  export default function UserNum() {
+  export default function UserNum(props) {
       const classes = useStyles();
-      const [value, setValue] = React.useState(1);
+      const value = props.value;
 
       return (
         <Card className={classes.root}>

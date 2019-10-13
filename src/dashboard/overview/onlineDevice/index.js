@@ -38,9 +38,9 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
-  export default function OnlineDevice() {
+  export default function OnlineDevice(props) {
       const classes = useStyles();
-      const [value, setValue] = React.useState(20);
+      const value = props.value;
 
       return (
         <Card className={classes.root}>

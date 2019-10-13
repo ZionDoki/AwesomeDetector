@@ -39,9 +39,9 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
-  export default function UploadSpeed() {
+  export default function UploadSpeed(props) {
       const classes = useStyles();
-      const [value, setValue] = React.useState(500);
+      const value = props.value;
 
       return (
         <Card className={classes.root}>
