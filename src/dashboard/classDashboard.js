@@ -106,17 +106,13 @@ class Dashboard extends React.Component{
     componentDidMount() {
         const polling = () => {
             Poll().then(res => {
-                if(!res.body.status)
+                if(!res.body.status) {
                     this.props.history.push('/login');
+                }
             }).catch( err => console.log(err) );
         }
-        setInterval(polling, 3000);
-        // if(!this.props.user_key) {
-        //     if(localStorage.getItem('local_key') != null)
-        //         this.props.setKey(localStorage.getItem('local_key'));
-        //     else 
-        //         this.props.history.push('/login');
-        // }
+        polling();
+        setInterval(polling, 10000);
     }
 
     Logout = () => {
@@ -127,7 +123,7 @@ class Dashboard extends React.Component{
     
     render() {
         const {classes} = this.props;
-        const { user_key, match, history } = this.props;
+        const { match, history } = this.props;
         const { open } = this.state;
         const handleDrawerOpen = () => { this.setState({open: true}); };
         const handleDrawerClose = () => { this.setState({open: false}) };
@@ -228,10 +224,10 @@ class Dashboard extends React.Component{
                  <main className={classes.content}>
                     <div className={classes.appBarSpacer} /> 
                          <Switch>
-                             <Route exact path={`${match.url}`} render={() => <Overview history={history} match={match} user_key={user_key} />} />
-                             <Route path={`${match.url}/speedtest`} render={() => <SpeedTest history={history} match={match} user_key={user_key} />} />
-                             <Route path={`${match.url}/attack`} render={() => <AttackTest history={history} match={match} user_key={user_key} />} />
-                             <Route path={`${match.url}/manage`} render={() => <Manage history={history} match={match} user_key={user_key} />} />
+                             <Route exact path={`${match.url}`} render={() => <Overview history={history} match={match} />} />
+                             <Route path={`${match.url}/speedtest`} render={() => <SpeedTest history={history} match={match} />} />
+                             <Route path={`${match.url}/attack`} render={() => <AttackTest history={history} match={match} />} />
+                             <Route path={`${match.url}/manage`} render={() => <Manage history={history} match={match}  />} />
                          </Switch> 
                  </main>
             </div>
