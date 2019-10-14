@@ -28,6 +28,7 @@ export default function Overview(props) {
     });
     const name = ['online_clients', 'users', 'overview_download_speed', 'overview_upload_speed'];
 
+    {/* 获取总览信息 */}
     React.useEffect(() => {
         GetOverviewData().then(res => {
             if(res.body.status) {
@@ -40,6 +41,8 @@ export default function Overview(props) {
             }
         }).catch( err => console.log(err) );
     });
+
+    {/* 获取操作系统信息 */}
 
     return (
         <Container maxWidth='lg' className={classes.root}>
