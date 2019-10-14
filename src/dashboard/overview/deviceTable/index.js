@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles, Card, CardHeader, CardContent, Table, TableHead, TableBody, TableRow, TableCell, Divider, withStyles } from '@material-ui/core';
+import PropTypes from 'prop-types';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -17,15 +18,16 @@ const StyledTableCell = withStyles(theme => ({
     },
 }))(TableCell);
 
-export default function DeviceTable() {
+export default function DeviceTable(props) {
     const classes = useStyles();
-    const data = [
-        {name: 'Machine1', us: '500bps', ds: '480bps', ip: 'IP_Address', mac: 'MAC_Address'},
-        {name: 'Machine2', us: '490bps', ds: '480bps', ip: 'IP_Address', mac: 'MAC_Address'},
-        {name: 'Machine3', us: '480bps', ds: '470bps', ip: 'IP_Address', mac: 'MAC_Address'},
-        {name: 'Machine4', us: '470bps', ds: '470bps', ip: 'IP_Address', mac: 'MAC_Address'},
-        {name: 'Machine5', us: '460bps', ds: '450bps', ip: 'IP_Address', mac: 'MAC_Address'},
-    ];
+    // const data = [
+    //     {name: 'Machine1', us: '500bps', ds: '480bps', ip: 'IP_Address', mac: 'MAC_Address'},
+    //     {name: 'Machine2', us: '490bps', ds: '480bps', ip: 'IP_Address', mac: 'MAC_Address'},
+    //     {name: 'Machine3', us: '480bps', ds: '470bps', ip: 'IP_Address', mac: 'MAC_Address'},
+    //     {name: 'Machine4', us: '470bps', ds: '470bps', ip: 'IP_Address', mac: 'MAC_Address'},
+    //     {name: 'Machine5', us: '460bps', ds: '450bps', ip: 'IP_Address', mac: 'MAC_Address'},
+    // ];
+    const data = props.value;
 
     return (
         <Card>
@@ -52,9 +54,9 @@ export default function DeviceTable() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {data.map(row => (
-                                <TableRow key={row.name}>
-                                    <TableCell>{row.name}</TableCell>
+                            {data.map((row, index) => (
+                                <TableRow key={row.username}>
+                                    <TableCell>{row.username}</TableCell>
                                     <TableCell>{row.us}</TableCell>
                                     <TableCell>{row.ds}</TableCell>
                                     <TableCell>{row.ip}</TableCell>
@@ -67,4 +69,14 @@ export default function DeviceTable() {
             </CardContent>
         </Card>
     );
+}
+
+DeviceTable.propTypes = {
+    value: PropTypes.array
+}
+
+DeviceTable.defaultProps = {
+    value: [
+             {username: 'Machine1', us: '500bps', ds: '480bps', ip: 'IP_Address', mac: 'MAC_Address'},
+         ]
 }

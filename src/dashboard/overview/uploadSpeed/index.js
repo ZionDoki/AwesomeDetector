@@ -84,3 +84,7 @@ const useStyles = makeStyles(theme => ({
   UploadSpeed.propTypes = {
     value: PropTypes.number
   }
+
+  UploadSpeed.defaultProps = {
+    value: '__'
+  }

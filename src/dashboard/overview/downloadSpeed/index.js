@@ -1,7 +1,7 @@
 import React from 'react';
 // import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar, makeStyles } from '@material-ui/core';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import PropTypes from 'prop-types';
 import red from '@material-ui/core/colors/red';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
@@ -79,4 +79,12 @@ const useStyles = makeStyles(theme => ({
           </CardContent>
         </Card>
       );
+  }
+
+  DownloadSpeed.propTypes = {
+    value: PropTypes.number
+  }
+
+  DownloadSpeed.defaultProps = {
+    value: '__'
   }

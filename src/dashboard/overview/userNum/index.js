@@ -1,7 +1,7 @@
 import React from 'react';
 // import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar, makeStyles } from '@material-ui/core';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import PropTypes from 'prop-types';
 import orange from '@material-ui/core/colors/orange';
 import PeopleIcon from '@material-ui/icons/People';
 
@@ -79,4 +79,12 @@ const useStyles = makeStyles(theme => ({
           </CardContent>
         </Card>
       );
+  }
+
+  UserNum.propTypes = {
+    value: PropTypes.number
+  }
+
+  UserNum.defaultProps = {
+    value: '__'
   }

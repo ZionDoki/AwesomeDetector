@@ -111,7 +111,7 @@ class Dashboard extends React.Component{
                 }
             }).catch( err => console.log(err) );
         }
-        polling();
+        // polling();
         setInterval(polling, 10000);
     }
 

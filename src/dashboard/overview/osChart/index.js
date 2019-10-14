@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles, Card, CardHeader, CardContent, Divider } from '@material-ui/core';
 import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
+import PropTypes from 'prop-types';
 
 const useStyles = makeStyles(theme => ({
     chartContainer: {
@@ -8,15 +9,11 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function OSChart() {
+export default function OSChart(props) {
     const classes = useStyles();
     const colors = ['#00bcd4', '#81c784', '#ffa726'];
     const RADIAN = Math.PI / 180; 
-    const data = [
-        {name:'Windows', value:13},
-        {name:'Linux', value:5},
-        {name:'Mac', value:2},
-    ];
+    const data = props.value;
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
         const x  = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -58,4 +55,12 @@ export default function OSChart() {
             </CardContent>
         </Card>
     );
+}
+
+OSChart.propTypes = {
+    value: PropTypes.array
+}
+
+OSChart.defaultProps = {
+    value: [{name:'windows', value:1}, {name:'linux', value:1}, {name:'unix',value:1}],
 }
