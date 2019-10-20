@@ -107,11 +107,12 @@ class Dashboard extends React.Component{
         const polling = () => {
             Poll().then(res => {
                 if(!res.body.status) {
+                    console.log(res.body.status)
                     this.props.history.push('/login');
                 }
             }).catch( err => console.log(err) );
         }
-        // polling();
+        polling();
         setInterval(polling, 10000);
     }
 

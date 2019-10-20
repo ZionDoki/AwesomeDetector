@@ -7,6 +7,8 @@ import { cyan } from '@material-ui/core/colors';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Label, Tooltip, Legend } from 'recharts';
 import Computer from '@material-ui/icons/Computer';
 
+import { GetList, GetClientInfo } from '../../api/speedTest';
+
 const useStyles = makeStyles(theme => ({
     container: {
         marginTop: theme.spacing(3),
@@ -18,6 +20,7 @@ const useStyles = makeStyles(theme => ({
     },
     button: {
         marginRight: theme.spacing(2),
+        color: theme.palette.common.white,
     },
     dataDisplay: {
         marginTop: theme.spacing(1),
@@ -27,9 +30,6 @@ const useStyles = makeStyles(theme => ({
     paperHeight: {
         height: 290,
     },
-    table: {
-
-    },
 }));
 
 {/* 自定义Table的样式*/}
@@ -37,38 +37,37 @@ const StyledTableCell = withStyles(theme => ({
     head: {
         backgroundColor: '#66bb6a',
         color: '#fff',
-        fontSize: 17,
+        fontSize: 18,
     },
     body: {
-        fontSize: 15,
+        fontSize: 16,
     },
 }))(TableCell);
 
-const theme = createMuiTheme({
-    palette: {
-      primary: cyan,
+// const theme = createMuiTheme({
+//     palette: {
+//       primary: cyan,
+//     },
+// });
+
+const ColorButton = withStyles(theme => ({
+    root: {
+        backgroundColor: cyan[500],
+        '&:hover': {
+            backgroundColor: cyan[700]
+        },
     },
-});
+}))(Button);
 
 export default function SpeedTest(props) {
     const classes = useStyles();
-    const onlineMachineList = [
-        {name:'Machine-1', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-2', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-3', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-4', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-5', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-6', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-7', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-8', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-9', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-10', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-11', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-    ];
+    const { history } = props;
+    const [onlineMachineList, setOnlineMachineList] = React.useState(Array);
+ 
     const data = [
         {time: '12:00', us: 300, ds: 500},
         {time: '12:01', us: 350, ds: 500},
-        {time: '12:02', us: 400, ds: 520},
+        {time: '12:02', us: 300, ds: 520},
         {time: '12:03', us: 320, ds: 420},
         {time: '12:04', us: 360, ds: 480},
         {time: '12:05', us: 400, ds: 522},
@@ -76,12 +75,42 @@ export default function SpeedTest(props) {
         {time: '12:07', us: 413, ds: 532},
         {time: '12:08', us: 393, ds: 552},
     ];
-    const values = [
-        {name: 'Ping', value: 'value1'},
-        {name: '路由跳数', value: 'value2'},
-        {name: '延迟', value: 'value3'},
-    ];
+    const [values, setValues] = React.useState([
+        {name: 'ping', value: '__'},
+        {name: 'routers', value: '__'},
+    ]);
 
+    {/* 获取客户端列表 */}
+    React.useEffect(() => {
+        GetList().then(res => {
+            if(res.body.status) {
+                console.log(res.body.data.clients);
+                setOnlineMachineList(res.body.data.clients);
+            } else {
+                console.log(res.body.status);
+                history.push('/login');
+            }
+        }).catch( err => console.log(err) );
+    }, []);
+
+    {/* 请求延迟和路由跳数 */}
+    const handlePing = id => {
+        GetClientInfo(id).then(res => {
+            if(res.body.status){
+                console.log(res.body.data);
+                setValues(res.body.data.client_info);
+            } else {
+                console.log(res.body.status);
+                history.push('/login')
+            }
+        }).catch( err => console.log(err) );
+    }
+
+    {/* 请求上下行速率 */}
+    const handleTestSpeed = id => {
+
+    }
+    
 
     return (
         <Container maxWidth='lg' className={classes.container} >
@@ -92,7 +121,7 @@ export default function SpeedTest(props) {
                                 <Typography  color='primary' variant='subtitle1' className={classes.title} >
                                     上/下行速度
                                 </Typography> 
-                                <Divider />
+                                {/* <Divider /> */}
                                 <ResponsiveContainer width='90%' height='83%'>
                                     <LineChart data={data} margin={{top: 10, right: 10, bottom: 5, left: 20}}>
                                         <Line unit='bps' name='上行速率' type='monotone' dataKey='us' stroke='#00bcd4' />
@@ -113,9 +142,9 @@ export default function SpeedTest(props) {
                             <Typography variant='subtitle1' color='primary' className={classes.title}>
                                 Ping
                             </Typography> 
-                            <Divider />
+                            {/* <Divider /> */}
                             <Paper style={{margin: '12px'}}>
-                                <Table className={classes.table}>
+                                <Table>
                                     <TableHead>
                                         <TableRow>
                                             <StyledTableCell>Items</StyledTableCell>
@@ -147,12 +176,16 @@ export default function SpeedTest(props) {
                                             <ListItemIcon>
                                                 <Computer />
                                             </ListItemIcon>
-                                            <ListItemText primary={item.name} secondary={`IP地址：${item.ip} MAC地址：${item.mac} 操作系统：${item.os}`} />
+                                            <ListItemText 
+                                                style={{whiteSpace: 'pre'}}
+                                                primary={item.client_id}
+                                                secondary={`状态:${item.status}    IP地址:${item.ip}    MAC地址:${item.mac}    操作系统:${item.operation_system}`} 
+                                            />
                                             <ListItemSecondaryAction>
-                                                <ThemeProvider theme={theme}>
-                                                    <Button variant='contained' color='primary' className={classes.button} >Ping 路由跳数 延迟</Button>
-                                                    <Button variant='contained' color='primary' className={classes.button} >上/下行速度</Button>
-                                                </ThemeProvider>
+                                                {/* <ThemeProvider theme={theme}> */}
+                                                    <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handlePing(item.client_id)} >路由跳数 延迟</ColorButton>
+                                                    <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handleTestSpeed(item.client_id)} >上/下行速度</ColorButton>
+                                                {/* </ThemeProvider> */}
                                             </ListItemSecondaryAction>
                                         </ListItem>
                                     ))} 

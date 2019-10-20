@@ -23,6 +23,9 @@ const useStyles = makeStyles(theme => ({
     button: {
         marginTop: theme.spacing(3),
     },
+    warning: {
+        margin: theme.spacing(3, 2),
+    },
 }));
 
 export default function Login(props) {
@@ -49,7 +52,7 @@ export default function Login(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
         SignIn(values.username, values.password).then(res => {
-            console.log(res);
+            console.log(res.body);
             if(res.body.status) {
                 history.push('/dashboard');
             }
@@ -132,7 +135,7 @@ export default function Login(props) {
                     </Button>
                 </form>
             </div>
-            <Dialog open={dialogOpen} onClose={handleDialogClose}>
+            <Dialog open={dialogOpen} onClose={handleDialogClose} className={classes.warning}>
                 <DialogContent>
                     <DialogContentText>登录失败！</DialogContentText>
                 </DialogContent>

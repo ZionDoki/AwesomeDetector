@@ -1,8 +1,8 @@
 import React from 'react';
-import { makeStyles, Container, Paper, Typography, Divider, Button, Modal, Backdrop, Fade } from '@material-ui/core';
+import { makeStyles, withStyles, Container, Paper, Typography, Divider, Button, Modal, Backdrop, Fade } from '@material-ui/core';
 import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction, createMuiTheme } from '@material-ui/core';
 import { Card, CardHeader, CardContent } from '@material-ui/core';
-import { ThemeProvider } from '@material-ui/styles';
+// import { ThemeProvider } from '@material-ui/styles';
 import { cyan } from '@material-ui/core/colors';
 import ComputerIcon from '@material-ui/icons/Computer';
 
@@ -17,6 +17,7 @@ const useStyles = makeStyles(theme => ({
     },
     button: {
         marginRight: theme.spacing(2),
+        color: theme.palette.common.white,
     },
     modal: {
         display: 'flex',
@@ -31,11 +32,20 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const theme = createMuiTheme({
-    palette: {
-        primary: cyan,
+// const theme = createMuiTheme({
+//     palette: {
+//         primary: cyan,
+//     },
+// });
+
+const ColorButton = withStyles(theme => ({
+    root: {
+        backgroundColor: cyan[500],
+        '&:hover': {
+            backgroundColor: cyan[700]
+        },
     },
-});
+}))(Button);
 
 export default function AttackTest(props) {
     const classes = useStyles();
@@ -78,11 +88,11 @@ export default function AttackTest(props) {
                             </ListItemIcon>
                             <ListItemText primary={item.name} secondary={`IP地址：${item.ip} MAC地址：${item.mac} 操作系统：${item.os}`} />
                             <ListItemSecondaryAction>
-                              <ThemeProvider theme={theme}>
-                                <Button variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >SYN洪水</Button>
-                                <Button variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >UDP洪水</Button>
-                                <Button variant='contained' color='primary' onClick={() => handleOpen(index)} >HTTP长连接</Button>
-                              </ThemeProvider>
+                              {/* <ThemeProvider theme={theme}> */}
+                                <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >SYN洪水</ColorButton>
+                                <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >UDP洪水</ColorButton>
+                                <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >HTTP长连接</ColorButton>
+                              {/* </ThemeProvider> */}
                             </ListItemSecondaryAction>
                         </ListItem>
                     ))}
