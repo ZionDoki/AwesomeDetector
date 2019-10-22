@@ -76,11 +76,11 @@ export default function AddUser() {
     }
 
     {/* 增加用户 */ }
-    const handleAddUser = event => {
+    const handleAddUser = (e) => {
+        e.preventDefault();
         //判断密码与确认密码是否相同
         if (values.password !== values.confirmedPassword) {
-            event.preventDefault();
-            setAnchorEl(event.currentTarget)
+            setAnchorEl(e.currentTarget)
             console.log(values)
         } else {
             //请求添加用户
@@ -135,7 +135,7 @@ export default function AddUser() {
             <Typography variant='h5' className={classes.title} >
                 创建新用户
             </Typography>
-            <form className={classes.form}>
+            <form className={classes.form} onSubmit={handleAddUser}>
                 <FormControl className={classes.formControl}>
                     <InputLabel htmlFor="identity" >用户类型</InputLabel>
                     <Select
@@ -229,7 +229,6 @@ export default function AddUser() {
                     color='primary'
                     size='large'
                     className={classes.button}
-                    onClick={handleAddUser}
                 >
                     创建用户
                 </ColorButton>
