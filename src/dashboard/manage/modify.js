@@ -73,10 +73,10 @@ export default function Modify() {
 
     {/* 点击按钮 */}
     const handleModifying = event => {
+        event.preventDefault();
         //检查新密码与确认密码是否一致
         if(modifying.newPassword !== modifying.comfirmedPassword){
             setAnchorEl(event.currentTarget);
-            event.preventDefault();
         } else {
             //提价表单并提示结果
             let data = {
@@ -128,7 +128,7 @@ export default function Modify() {
         <Typography variant='h5' className={classes.title} >
             修改密码
         </Typography>
-        <form className={classes.form}>
+        <form className={classes.form} onSubmit={handleModifying}>
             <TextField 
                 required
                 id='modify-username'
@@ -235,7 +235,7 @@ export default function Modify() {
                 color='primary' 
                 size='large'
                 className={classes.button} 
-                onClick={handleModifying}>
+            >
                 修改密码
             </ColorButton>
         </form>
