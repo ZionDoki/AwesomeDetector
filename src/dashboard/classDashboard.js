@@ -107,13 +107,17 @@ class Dashboard extends React.Component{
         const polling = () => {
             Poll().then(res => {
                 if(!res.body.status) {
-                    console.log(res.body.status)
                     this.props.history.push('/login');
                 }
             }).catch( err => console.log(err) );
         }
         polling();
-        setInterval(polling, 10000);
+        document.freshTimerInterval = setInterval(polling, 1000);
+    }
+
+    componentWillUnmount() {
+        //在取消挂载时清除轮询
+        clearInterval(document.freshTimerInterval);
     }
 
     Logout = () => {
