@@ -112,7 +112,7 @@ class Dashboard extends React.Component{
             }).catch( err => console.log(err) );
         }
         polling();
-        document.freshTimerInterval = setInterval(polling, 1000);
+        document.freshTimerInterval = setInterval(polling, 10000);
     }
 
     componentWillUnmount() {
@@ -121,7 +121,6 @@ class Dashboard extends React.Component{
     }
 
     Logout = () => {
-        this.props.signOut();
         this.props.history.push('/login');
     }
 

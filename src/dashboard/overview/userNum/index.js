@@ -61,21 +61,6 @@ const useStyles = makeStyles(theme => ({
                 </Avatar>
               </Grid>
             </Grid>
-            {/* <div className={classes.difference}>
-              <ArrowDownwardIcon className={classes.differenceIcon} />
-              <Typography
-                className={classes.differenceValue}
-                variant="body2"
-              >
-                12%
-              </Typography>
-              <Typography
-                color='textSecondary'
-                variant="caption"
-              >
-                Since last month
-              </Typography>
-            </div> */}
           </CardContent>
         </Card>
       );
@@ -86,5 +71,5 @@ const useStyles = makeStyles(theme => ({
   }
 
   UserNum.defaultProps = {
-    value: '__'
+    value: 0
   }

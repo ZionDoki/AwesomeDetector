@@ -11,7 +11,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function OSChart(props) {
     const classes = useStyles();
-    const colors = ['#00bcd4', '#81c784', '#ffa726'];
+    const colors = ['#00bcd4', '#81c784', '#ffa726', '#ef5350'];
     const RADIAN = Math.PI / 180; 
     const data = props.value;
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
@@ -20,7 +20,7 @@ export default function OSChart(props) {
         const y = cy  + radius * Math.sin(-midAngle * RADIAN);
         
         return (
-         <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} 	dominantBaseline="central">
+         <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'}	dominantBaseline="central">
            {`${(percent * 100).toFixed(0)}%`}
          </text>
         );
@@ -42,9 +42,9 @@ export default function OSChart(props) {
                 <div className={classes.chartContainer}>
                     <ResponsiveContainer>
                         <PieChart>
-                            <Pie data={data} outerRadius={85} fill="#82ca9d" label={renderCustomizedLabel} labelLine={false}>
+                            <Pie data={data} dataKey='value' outerRadius={85} fill="#82ca9d" label={renderCustomizedLabel} labelLine={false}>
                                 {data.map((item, index) => (
-                                    <Cell fill={colors[index]} />
+                                    <Cell key={index} fill={colors[index]} />
                                 ))}
                             </Pie>
                             <Tooltip />

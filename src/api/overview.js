@@ -27,3 +27,11 @@ export function GetFiveClients() {
     return agent.get(url).accept('application/json').withCredentials();
 }
 
+
+{/* 获取在线设备数量 */}
+export function GetDeviceNum(data) {
+    let url = '/api/v1/get/clients/online';
+    if(test) 
+        url = testIP + url;
+    return agent.post(url).send(data).accept('application/json').withCredentials();
+}

@@ -1,10 +1,10 @@
 import React from 'react';
-import { makeStyles, withStyles, Container, Paper, Typography, Divider, Button, Modal, Backdrop, Fade } from '@material-ui/core';
-import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction, createMuiTheme } from '@material-ui/core';
-import { Card, CardHeader, CardContent } from '@material-ui/core';
-// import { ThemeProvider } from '@material-ui/styles';
-import { cyan } from '@material-ui/core/colors';
+import { makeStyles, Container, Paper, Typography, Divider, Button } from '@material-ui/core';
+import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from '@material-ui/core';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import ComputerIcon from '@material-ui/icons/Computer';
+
+import { GetList, CreateMission, IsFinished, GetResult } from '../../api/attackTest';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -17,7 +17,6 @@ const useStyles = makeStyles(theme => ({
     },
     button: {
         marginRight: theme.spacing(2),
-        color: theme.palette.common.white,
     },
     modal: {
         display: 'flex',
@@ -26,50 +25,146 @@ const useStyles = makeStyles(theme => ({
     },
     paper: {
         backgroundColor: theme.palette.background.paper,
-        // border: '5px solid #fff',
-        // boxShadow: theme.shadows[5],
-        // padding: theme.spacing(2, 10, 2),
     },
 }));
 
-// const theme = createMuiTheme({
-//     palette: {
-//         primary: cyan,
-//     },
-// });
-
-const ColorButton = withStyles(theme => ({
-    root: {
-        backgroundColor: cyan[500],
-        '&:hover': {
-            backgroundColor: cyan[700]
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            main: '#4caf50',
+            contrastText: '#fff',
         },
     },
-}))(Button);
+});
 
 export default function AttackTest(props) {
     const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
-    const [num, setNum] = React.useState(0);
-    const traffic = 500;
-    const onlineMachineList = [
-        {name:'Machine-1', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-2', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-3', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-4', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-5', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-6', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-7', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-8', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-9', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-10', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-        {name:'Machine-11', ip:'ip_address', mac: 'mac_address', os: '操作系统类型' },
-    ];
-    const handleOpen = (index) => {
-       setOpen(true);
-       setNum(index);
-    };
-    const handleClose = () => {setOpen(false)};
+    const [id, setId] = React.useState(0);
+    const [clientList, setClientList] = React.useState(Array);
+    {/* primary表示“安全”，secondary表示“有风险”，default表示“尚未测试” */}
+    const [colors, setColors] = React.useState([{
+        syn: 'primary',
+        udp: 'secondary',
+        sha: 'default'
+    }]);
+    // const [colors, setColors] = React.useState({
+    //     syn: 'primary',
+    //     udp: 'secondary',
+    //     sha: 'default'
+    // });
+
+
+    {/* 获取客户端列表并初始化按钮状态 */}
+    React.useEffect(() => {
+        GetList().then(res => {
+            if(res.body.status) {
+                console.log(res.body.data.clients);
+                setClientList(res.body.data.clients, () => {
+                    var colors_temp = [];
+                    console.log(clientList);
+                    clientList.map(item => {
+                        var obj_temp = {};
+                        switch(item.syn) {
+                            case 'SAFE':
+                                obj_temp.syn('primary');
+                                break;
+                            case 'DANGER':
+                                obj_temp.syn('secondary');
+                                break;
+                            case 'WAITTING':
+                                obj_temp.syn('default');
+                                break;
+                        };
+                        switch(item.udp) {
+                            case 'SAFE':
+                                obj_temp.udp('primary');
+                                break;
+                            case 'DANGER':
+                                obj_temp.udp('secondary');
+                                break;
+                            case 'WAITTING':
+                                obj_temp.udp('default');
+                                break;
+                        };
+                        switch(item.sha) {
+                            case 'SAFE':
+                                obj_temp.sha('primary');
+                                break;
+                            case 'DANGER':
+                                obj_temp.sha('secondary');
+                                break;
+                            case 'WAITTING':
+                                obj_temp.sha('default');
+                                break;
+                        };
+                        colors_temp.push(obj_temp);
+                    });
+                    console.log(colors_temp)
+                    // setColors(colors_temp);
+                });
+            } else {
+                props.history.push('/login');
+            }
+        }).catch(err => console.log(err))
+    }, [])
+
+
+    {/* 查询任务状态，任务完成时请求任务结果 */}
+    const checking = (mission_id, index) => {
+        var data = {mission_id: mission_id}
+        IsFinished(data).then(res => {
+            if(res.body.status) {
+                if(res.body.data.isDone) {
+                    //结束轮询
+                    clearInterval(document.checkingTimerInterval);
+                    //查询任务结果
+                    GetResult(data).then(res => {
+                        if(res.body.status) {
+                            var type = res.body.data.result.type;
+                            var value = res.body.data.result.value;
+                            switch(value) {
+                                case 'SAFE':
+                                    setColors({...colors[index], [type]: 'primary'});
+                                    break;
+                                case 'DANGER':
+                                    setColors({...colors[index], [type]: 'secondary'});
+                                    break;
+                                case 'WAITTING':
+                                    setColors({...colors[index], [type]: 'default'});
+                                    break;
+                            }
+                        } else {
+                            props.history.push('/login');
+                        }
+                    }).catch(err => console.log(err));
+                }
+            } else {
+                props.history.push('/login');
+            }
+        }).catch(err => console.log(err));
+    }
+
+    {/* 创建任务并轮询任务结果 */}
+    const handleClick = (id, ip, mac, type, index) => {
+        var data = {
+            client_id: id,
+            ip: ip,
+            mac: mac,
+            type: type
+        };
+        var mission_id = -1;
+        //创建任务
+        CreateMission(data).then(res => {
+            if(res.body.status) {
+                mission_id = res.body.data.mission_id;
+            } else {
+                props.history.push('/login');
+            }
+        }).catch(err => console.log(err));
+        //轮询确认是否完成,完成时获取任务结果
+        document.checkingTimerInterval = setInterval(checking, 2000, mission_id, index);
+    }
+
 
    
     return (
@@ -81,54 +176,50 @@ export default function AttackTest(props) {
                 <Divider />
                 <div style={{height:'75vh', overflowY: 'scroll'}}>
                   <List>
-                    {onlineMachineList.map((item, index) => (
+                    {clientList.map((item, index) => {
+                        console.log(colors)
+                        return (
                         <ListItem key={index}>
                             <ListItemIcon>
                                 <ComputerIcon />
                             </ListItemIcon>
-                            <ListItemText primary={item.name} secondary={`IP地址：${item.ip} MAC地址：${item.mac} 操作系统：${item.os}`} />
+                            <ListItemText 
+                                style={{whiteSpace: 'pre'}}
+                                primary={item.client_id}
+                                secondary={`状态:${item.status}    IP地址:${item.ip}    MAC地址:${item.mac}    操作系统:${item.operation_system}`} 
+                            />
                             <ListItemSecondaryAction>
-                              {/* <ThemeProvider theme={theme}> */}
-                                <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >SYN洪水</ColorButton>
-                                <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >UDP洪水</ColorButton>
-                                <ColorButton variant='contained' color='primary' className={classes.button} onClick={() => handleOpen(index)} >HTTP长连接</ColorButton>
-                              {/* </ThemeProvider> */}
+                              <MuiThemeProvider theme={theme}> 
+                                <Button 
+                                    variant='contained' 
+                                    color={colors[index].syn} 
+                                    className={classes.button} 
+                                    onClick={() => handleClick(item.client_id, item.ip, item.mac, 'syn', index)}
+                                >
+                                    SYN洪水
+                                </Button>
+                                <Button 
+                                    variant='contained' 
+                                    color={colors[index].udp} 
+                                    className={classes.button} 
+                                    onClick={() => handleClick(item.client_id, item.ip, item.mac, 'udp', index)}
+                                >
+                                    UDP洪水
+                                </Button>
+                                <Button 
+                                    variant='contained' 
+                                    color={colors[index].sha} 
+                                    className={classes.button} 
+                                    onClick={() => handleClick(item.client_id, item.ip, item.mac, 'sha', index)}
+                                >
+                                    HTTP长连接
+                                </Button>
+                              </MuiThemeProvider>
                             </ListItemSecondaryAction>
                         </ListItem>
-                    ))}
+                    )})}
                   </List>
                 </div>
-                <Modal
-                    aria-labelledby="SYN-modal"
-                    aria-describedby="SYN-modal-description"
-                    className={classes.modal}
-                    open={open}
-                    onClose={handleClose}
-                    closeAfterTransition
-                    BackdropComponent={Backdrop}
-                    BackdropProps={{
-                        timeout: 300,
-                        style: {
-                            // opacity: 0.5,
-                        },
-                    }}
-                >
-                    <Fade in={open}>
-                        <div className={classes.paper}>
-                            <Card style={{padding:'10px 30px'}}>
-                                <CardHeader title='测试结果' />
-                                <CardContent>
-                                    <h3>当前设备信息</h3>
-                                    <p style={{whiteSpace: 'pre'}}>设备名称：{onlineMachineList[num].name}      IP地址：{onlineMachineList[num].ip}</p>
-                                    <p style={{whiteSpace: 'pre'}}>MAC地址：{onlineMachineList[num].mac}      操作系统：{onlineMachineList[num].os}</p>
-                                    <h3>当前流量</h3>
-                                    <p>{traffic}</p>
-                                </CardContent>
-                            </Card>
-
-                        </div>
-                    </Fade>
-                </Modal>
             </Paper>
         </Container>
     );

@@ -86,5 +86,5 @@ const useStyles = makeStyles(theme => ({
   }
 
   UploadSpeed.defaultProps = {
-    value: '__'
+    value: 0
   }

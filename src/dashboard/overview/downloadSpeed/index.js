@@ -1,5 +1,4 @@
 import React from 'react';
-// import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar, makeStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import red from '@material-ui/core/colors/red';
@@ -61,21 +60,6 @@ const useStyles = makeStyles(theme => ({
                 </Avatar>
               </Grid>
             </Grid>
-            {/* <div className={classes.difference}>
-              <ArrowDownwardIcon className={classes.differenceIcon} />
-              <Typography
-                className={classes.differenceValue}
-                variant="body2"
-              >
-                12%
-              </Typography>
-              <Typography
-                color='textSecondary'
-                variant="caption"
-              >
-                Since last month
-              </Typography>
-            </div> */}
           </CardContent>
         </Card>
       );
@@ -86,5 +70,5 @@ const useStyles = makeStyles(theme => ({
   }
 
   DownloadSpeed.defaultProps = {
-    value: '__'
+    value: 0,
   }

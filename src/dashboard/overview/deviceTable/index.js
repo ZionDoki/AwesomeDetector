@@ -20,13 +20,6 @@ const StyledTableCell = withStyles(theme => ({
 
 export default function DeviceTable(props) {
     const classes = useStyles();
-    // const data = [
-    //     {name: 'Machine1', us: '500bps', ds: '480bps', ip: 'IP_Address', mac: 'MAC_Address'},
-    //     {name: 'Machine2', us: '490bps', ds: '480bps', ip: 'IP_Address', mac: 'MAC_Address'},
-    //     {name: 'Machine3', us: '480bps', ds: '470bps', ip: 'IP_Address', mac: 'MAC_Address'},
-    //     {name: 'Machine4', us: '470bps', ds: '470bps', ip: 'IP_Address', mac: 'MAC_Address'},
-    //     {name: 'Machine5', us: '460bps', ds: '450bps', ip: 'IP_Address', mac: 'MAC_Address'},
-    // ];
     const data = props.value;
 
     return (
@@ -55,7 +48,7 @@ export default function DeviceTable(props) {
                         </TableHead>
                         <TableBody>
                             {data.map((row, index) => (
-                                <TableRow key={row.username}>
+                                <TableRow key={index + '-' + row.ip}>
                                     <TableCell>{row.username}</TableCell>
                                     <TableCell>{row.us}</TableCell>
                                     <TableCell>{row.ds}</TableCell>

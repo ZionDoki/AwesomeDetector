@@ -69,5 +69,5 @@ const useStyles = makeStyles(theme => ({
     value: PropTypes.number
   }
   OnlineDevice.defaultProps = {
-    value: '__'
+    value: 0
   }

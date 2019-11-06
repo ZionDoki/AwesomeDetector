@@ -8,7 +8,7 @@ import DeviceChart from './deviceChart';
 import DeviceTable from './deviceTable';
 import OSChart from './osChart';
 
-import { GetOverviewData, GetOSNum, GetFiveClients } from '../../api/overview';
+import { GetOverviewData, GetOSNum, GetFiveClients, GetDeviceNum } from '../../api/overview';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -20,16 +20,10 @@ const useStyles = makeStyles(theme => ({
 export default function Overview(props) {
     const classes = useStyles();
     const { history } = props;
-    const [overview, setOverview] = React.useState({
-        users: '__',
-        online_clients: '__',
-        overview_download_speed: '__',
-        overview_upload_speed: '__',
-    });
+    const [overview, setOverview] = React.useState({Object});
     const [osInfo, setOsInfo] = React.useState(Array); 
     const [fasterClients, setFasterClients] = React.useState(Array);
-
-    // const []
+    const [deviceNum, setDeviceNum] = React.useState(Array);
 
     {/* 获取总览信息 */}
     React.useEffect(() => {
@@ -73,6 +67,20 @@ export default function Overview(props) {
         }).catch( err => console.log(err) );
     }, []);
 
+    {/* 获取若干时间点的在线设备数量 */}
+    React.useEffect(() => {
+        let endTime = Date.parse(new Date());
+        let startTime = endTime-180000*7;
+        let data = { start_time: startTime, end_time: endTime };
+        GetDeviceNum(data).then(res => {
+            if(res.body.status) {
+                setDeviceNum(res.body.data.online_clients);
+            } else {
+                history.push('/login')
+            }
+        }).catch(err => console.log(err));
+    }, []);
+
     return (  
         <Container maxWidth='lg' className={classes.root}>
             <Grid container spacing={3}>
@@ -89,7 +97,7 @@ export default function Overview(props) {
                     <DownloadSpeed value={overview.overview_download_speed} />
                 </Grid>
                 <Grid item lg={8} md={12} sm={12}>
-                    <DeviceChart />  
+                    <DeviceChart value={deviceNum} />  
                 </Grid>
                 <Grid item lg={4} md={12} sm={12}>
                     <OSChart value={osInfo} />                 

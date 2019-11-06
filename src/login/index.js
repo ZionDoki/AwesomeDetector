@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
     button: {
         marginTop: theme.spacing(3),
     },
-    warning: {
+    warningBox: {
         margin: theme.spacing(3, 2),
     },
 }));
@@ -120,7 +120,6 @@ export default function Login(props) {
                     />
                     <FormControlLabel
                         control={<Checkbox value='remember' color='primary' checked={values.remember} onChange={handleChange('remember')} />}
-                        // control={<Checkbox value='remember' color='primary'  onChange={handleChange('remember')} />}
                         label='Remember me'
                     />
                     <Button 
@@ -135,9 +134,9 @@ export default function Login(props) {
                     </Button>
                 </form>
             </div>
-            <Dialog open={dialogOpen} onClose={handleDialogClose} className={classes.warning}>
+            <Dialog open={dialogOpen} onClose={handleDialogClose} className={classes.warningBox}>
                 <DialogContent>
-                    <DialogContentText>登录失败！</DialogContentText>
+                    <DialogContentText color='error'>登录失败！请检查用户名和密码是否输入正确！</DialogContentText>
                 </DialogContent>
             </Dialog>
         </Container>

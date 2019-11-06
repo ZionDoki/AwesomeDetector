@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, makeStyles, Divider, CardHeader } from '@material-ui/core';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import PropTypes from 'prop-types';
 
 const useStyles = makeStyles(theme => ({
     chartContainer: {
@@ -8,16 +9,19 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function DeviceChart() {
+export default function DeviceChart(props) {
     const classes = useStyles();
-    const data = [
-        {time: '12:00', num: '19'},
-        {time: '12:01', num: '19'},
-        {time: '12:02', num: '19'},
-        {time: '12:03', num: '20'},
-        {time: '12:04', num: '20'},
-        {time: '12:05', num: '21'},
-    ];
+    const data = props.value;
+    {/* 将data中的时间戳更改为合适的格式 */}
+    data.map((item, index) => {
+        let dateObj = new Date(item.timestamp);
+        let M = (dateObj.getMonth()+1 < 10 ? '0'+(dateObj.getMonth()+1) : dateObj.getMonth()+1) + '-';
+        let D = dateObj.getDate() + ' ';
+        let h = dateObj.getHours() + ':';
+        let m = dateObj.getMinutes();
+        let time = M + D + h + m;
+        data[index].timestamp = time;
+    });
 
     return (
         <Card>
@@ -36,13 +40,17 @@ export default function DeviceChart() {
                 <ResponsiveContainer>
                     <BarChart data={data}>
                         <Tooltip />                       
-                        <XAxis dataKey='time' label={{value:'时间', position:'bottom', offset:'-7'}} />
+                        <XAxis dataKey='timestamp' label={{value:'时间', position:'bottom', offset:-7}} />
                         <YAxis />
-                        <Bar name='数量' unit='台' dataKey='num' fill='#8884d8' barSize={15} barGap={10} />
+                        <Bar name='数量' unit='台' dataKey='value' fill='#8884d8' barSize={15} barGap={10} />
                     </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
         </Card>
     );
+}
+
+DeviceChart.propTypes = {
+    value: PropTypes.array,
 }
