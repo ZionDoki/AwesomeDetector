@@ -52,7 +52,6 @@ export default function Login(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
         SignIn(values.username, values.password).then(res => {
-            console.log(res.body);
             if(res.body.status) {
                 history.push('/dashboard');
             }

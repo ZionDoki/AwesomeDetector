@@ -16,70 +16,55 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-
 export default function Overview(props) {
     const classes = useStyles();
-    const { history } = props;
     const [overview, setOverview] = React.useState({Object});
     const [osInfo, setOsInfo] = React.useState(Array); 
     const [fasterClients, setFasterClients] = React.useState(Array);
     const [deviceNum, setDeviceNum] = React.useState(Array);
-
-    {/* 获取总览信息 */}
-    React.useEffect(() => {
-        GetOverviewData().then(res => {
-            if(res.body.status) {
-                console.log(res.body.data.overview);
-                let data = res.body.data.overview;
-                setOverview(data);
-            }
-            else {
-                history.push('/login');
-            }
-        }).catch( err => console.log(err) );
-    }, []);  //第二个参数设为空，防止Hook在组件更新后也被调用
-
-
-    {/* 获取操作系统信息 */}
-    React.useEffect(() => {
-        GetOSNum().then(res => {
-            if(res.body.status) {
-                console.log(res.body.data)
-                setOsInfo(res.body.data.operation_system);
-            }
-            else {
-                history.push('/login');
-            }
-        }).catch( err => console.log(err) );
-    }, []);
-
-
-    {/* 获取平均上下载速率最快的前五个设备信息 */}
-    React.useEffect(() => {
-        GetFiveClients().then(res => {
-            if(res.body.status) {
-                console.log(res.body.data.faster_clients);
-                setFasterClients(res.body.data.faster_clients);
-            }
-            else {
-                history.push('/login')
-            }
-        }).catch( err => console.log(err) );
-    }, []);
-
-    {/* 获取若干时间点的在线设备数量 */}
+    
     React.useEffect(() => {
         let endTime = Date.parse(new Date());
         let startTime = endTime-180000*7;
         let data = { start_time: startTime, end_time: endTime };
+        {/* 获取总览信息 */}
+        GetOverviewData().then(res => {
+            if(res.body.status) {
+                let data = res.body.data.overview;
+                setOverview(data);
+            }
+            else {
+                console.log(res.body);
+            }
+        }).catch( err => console.log(err) );
+        {/* 获取操作系统信息 */}
+        GetOSNum().then(res => {
+            if(res.body.status) {
+                setOsInfo(res.body.data.operation_system);
+            }
+            else {
+                console.log(res.body);
+            }
+        }).catch( err => console.log(err) );
+        {/* 获取平均上下载速率最快的前五个设备信息 */}
+        GetFiveClients().then(res => {
+            if(res.body.status) {
+                setFasterClients(res.body.data.faster_clients);
+            }
+            else {
+                console.log(res.body);
+            }
+        }).catch( err => console.log(err) );
+        {/* 获取若干时间点的在线设备数量 */}
         GetDeviceNum(data).then(res => {
             if(res.body.status) {
                 setDeviceNum(res.body.data.online_clients);
             } else {
-                history.push('/login')
+                console.log(res.body);
             }
         }).catch(err => console.log(err));
-    }, []);
+    }, []);  //第二个参数设为空，防止Hook在组件更新后也被调用
+
 
     return (  
         <Container maxWidth='lg' className={classes.root}>

@@ -14,16 +14,20 @@ export function GetList() {
                 .withCredentials();
 }
 
-{/* 获取指定客户端的路由跳数和延迟 */}
-export function GetClientInfo(id) {
+
+{/* 获取指定客户端的路由跳数和延迟，参数：client_id */}
+export function GetClientInfo(data) {
     let url = '/api/v1/get/client/info';
     if(test)
         url = testIP + url;
-    return agent.post(url).send({client_id:id}).accept('application/json').withCredentials();
+    return agent.post(url)
+                .send(data)
+                .accept('application/json')
+                .withCredentials();
 }
 
-{/* 获取指定客户端的上行速度 */}
-export function GetSpeed(data) {
+{/* 获取指定客户端的上行速度，参数：client_id start_time end_time */}
+export function GetUploadSpeed(data) {
     let url = '/api/v1/get/client/speed/upload';
     if(test)
         url = testIP + url;
@@ -33,7 +37,13 @@ export function GetSpeed(data) {
                 .withCredentials();
 }
 
-{/* 指定客户端向另一客户端发起网络测速 */}
-export function P2PTest(data) {
-    
+{/* 获取指定客户端的下行速度，参数：client_id start_time end_time */}
+export function GetDownloadSpeed(data) {
+    let url = '/api/v1/get/client/speed/download';
+    if(test)
+        url = testIP + url;
+    return agent.post(url)
+                .send(data)
+                .accept('application/json')
+                .withCredentials();
 }

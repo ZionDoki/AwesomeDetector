@@ -1,20 +1,9 @@
-import request from 'superagent';
+import SuperAgent from 'superagent';
 import { test, testIP } from './serverIP';
 
-const agent = request.agent();
+const agent = SuperAgent.agent();
 
-{/* 获取客户端列表 */}
-export function GetList() {
-    let url = '/api/v1/get/clients';
-    if(test)
-        url = testIP + url;
-    return agent.post(url)
-                .send({get_all: true})
-                .accept('application/json')
-                .withCredentials();
-}
-
-{/* 创建任务：SYN UDP SHA */}
+{/* 创建任务：SYN UDP SHA，参数：client_id ip mac type (target_client)*/}
 export function CreateMission(data) {
     let url = "/api/v1/add/mission"
     if(test)
@@ -25,9 +14,9 @@ export function CreateMission(data) {
                 .withCredentials();
 }
 
-{/* 确认任务是否完成 */}
+{/* 确认任务是否完成，参数：mission_id */}
 export function IsFinished(data) {
-    let url = '/api/v1/get/mission/status'
+    let url = '/api/v1/is/mission/done'
     if(test)
         url = testIP + url;
     return agent.post(url)
