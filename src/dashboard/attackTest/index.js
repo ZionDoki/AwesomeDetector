@@ -183,10 +183,7 @@ export default function AttackTest(props) {
             mac: mac,
             type: type
         };
-        // setLoading(true);
-
         var states_temp = [].concat(states);
-        // console.log(states_temp);
         switch(type) {
             case 'SYN':
                 states_temp[index].synLoading = true;
