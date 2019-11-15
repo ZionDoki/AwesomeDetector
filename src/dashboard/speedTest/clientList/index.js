@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core';
+import { withStyles, CircularProgress } from '@material-ui/core';
 import { makeStyles, Paper, Button, Typography, Divider } from '@material-ui/core';
 import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from '@material-ui/core';
-import { cyan } from '@material-ui/core/colors';
+import { cyan, green } from '@material-ui/core/colors';
 import Computer from '@material-ui/icons/Computer';
 
 const useStyles = makeStyles(theme => ({
@@ -15,6 +15,27 @@ const useStyles = makeStyles(theme => ({
         marginRight: theme.spacing(1),
         color: theme.palette.common.white,
     },
+    buttonProgress_1: {
+        color: green[500],
+        position: 'absolute',
+        zIndex: 1,
+        top: '18%',
+        marginLeft: theme.spacing(-10),
+      },
+    buttonProgress_2: {
+        color: green[500],
+        position: 'absolute',
+        zIndex: 1,
+        top: '18%',
+        marginLeft: theme.spacing(-9),
+      },
+    buttonProgress_3: {
+        color: green[500],
+        position: 'absolute',
+        zIndex: 1,
+        top: '18%',
+        marginLeft: theme.spacing(-8),
+      },
 }));
 
 const ColorButton = withStyles(theme => ({
@@ -50,29 +71,38 @@ export default function ClientList(props) {
                                     size='small' 
                                     variant='contained' 
                                     color='primary' 
+                                    disabled={ item.p2pDownloadLoading || item.p2pUploadLoading }
                                     className={classes.button} 
                                     onClick={() => onClickP2P(item.client_id, index)} 
                                 >
-                                    P2P测速
+                                    P2P上/下行测速
                                 </ColorButton>
+                                { item.p2pUploadLoading && <CircularProgress size={22} className={classes.buttonProgress_1} /> }
+                                { item.p2pDownloadLoading && <CircularProgress size={22} className={classes.buttonProgress_1} /> }
                                 <ColorButton 
                                     size='small' 
                                     variant='contained' 
                                     color='primary' 
+                                    disabled={item.pingLoading || item.routerLoading}
                                     className={classes.button} 
-                                    onClick={() => onClickPing(item.client_id, item.ip, item.mac)} 
+                                    onClick={() => onClickPing(item.client_id, item.ip, item.mac, index)} 
                                 >
                                     路由跳数/延迟
                                 </ColorButton>
+                                { item.pingLoading && <CircularProgress size={22} className={classes.buttonProgress_2} /> }
+                                { item.routerLoading && <CircularProgress size={22} className={classes.buttonProgress_2} /> }
                                 <ColorButton
                                     size='small'
                                     variant='contained'
                                     color='primary'
+                                    disabled={item.uploadLoading || item.downloadLoading}
                                     className={classes.button}
-                                    onClick={() => onClickTestSpeed(item.client_id, item.ip, item.mac)} 
+                                    onClick={() => onClickTestSpeed(item.client_id, item.ip, item.mac, index)} 
                                 >
-                                    上/下行速度
+                                    上/下行测速
                                 </ColorButton>
+                                { item.uploadLoading && <CircularProgress size={22} className={classes.buttonProgress_3} /> }
+                                { item.downloadLoading && <CircularProgress size={22} className={classes.buttonProgress_3} /> }
                             </ListItemSecondaryAction>
                         </ListItem>
                     ))}
