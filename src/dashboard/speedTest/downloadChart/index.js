@@ -23,7 +23,7 @@ export default function DownloadChart(props) {
             </Typography>
             <ResponsiveContainer width='90%' height='83%'>
                 <LineChart data={downData} margin={{ top: 10, right: 10, bottom: 5, left: 12 }}>
-                    <Line unit='bps' name='下行速率' type='monotone' dataKey='value' stroke='#8884d8' />
+                    <Line unit='bps' name='下行速率' type='monotone' dataKey='value' stroke='#8884d8' dot={false} />
                     <XAxis dataKey='timestamp'>
                         <Label value='时间' position='insideBottomRight' offset={-7} />
                     </XAxis>

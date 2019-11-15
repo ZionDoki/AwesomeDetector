@@ -23,7 +23,7 @@ export default function UploadChart(props) {
             </Typography>
             <ResponsiveContainer width='90%' height='83%'>
                 <LineChart data={upData} margin={{ top: 10, right: 10, bottom: 5, left: 12 }}>
-                    <Line unit='bps' name='上行速率' type='monotone' dataKey='value' stroke='#00bcd4' />
+                    <Line unit='bps' name='上行速率' type='monotone' dataKey='value' stroke='#00bcd4' dot={false} />
                     <XAxis dataKey='timestamp'>
                         <Label value='时间' position='insideBottomRight' offset={-7} />
                     </XAxis>
