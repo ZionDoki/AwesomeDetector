@@ -7,6 +7,7 @@ import ComputerIcon from '@material-ui/icons/Computer';
 
 import { GetList } from '../../api/speedTest';
 import { CreateMission, IsFinished, GetResult } from '../../api/mission';
+import ErrorDialog from '../speedTest/errorDialog';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -46,6 +47,8 @@ const theme = createMuiTheme({
 
 export default function AttackTest(props) {
     const classes = useStyles();
+    const [openErrorDialog, setOpenErrorDialog] = React.useState(false);
+    const [msg, setMsg] = React.useState('');
     const [anchorEl, setAnchorEl] = React.useState(null);
     const openPopover = Boolean(anchorEl);
     const [popoverStr, setPopoverStr] = React.useState('');
@@ -122,24 +125,29 @@ export default function AttackTest(props) {
                 setClientList(res.body.data.clients);
             } else {
                 console.log(res.body);
+                handleOpenErrorDialog('在线客户端列表获取失败');
             }
         }).catch(err => console.log(err))        
     }, [])
 
 
     {/* 查询任务状态，任务完成时请求任务结果 */ }
-    const checking = (mission_id, index) => {
+    const checking = (mission_id, index, type) => {
         var data = { mission_id: mission_id }
         //检查任务是否完成
         IsFinished(data).then(res => {
+            console.log(clientList[index].client_id, type, 'Checking the state ...');
             if(res.body.status) {
-                //任务完成时，终止轮询，请求数据
-                if (res.body.data.isDone) {
-                    clearInterval(document.checkingTimerInterval);
+                //任务完成时，请求数据，终止超时检测，终止轮询
+                if (res.body.data.isDone) {  
+                    console.log(clientList[index].client_id, type, 'Misstion is done.');                 
+                    clearTimeout(document.attackTestTimeout);
                     GetResult(data).then(res => {
+                        console.log(clientList[index].client_id, type, 'Got the data.')
                         if (res.body.status) {
-                            var type = res.body.data.result.type;
+                            // var type = res.body.data.result.type;
                             var value = res.body.data.result.value;
+                            var states_temp = [].concat(states);
                             var loadingStr;
                             switch(type) {
                                 case 'SYN':
@@ -154,22 +162,29 @@ export default function AttackTest(props) {
                             }
                             switch (value) {
                                 case 'SAFE':
-                                    setStates({ ...states[index], [type]: 'primary', [loadingStr]: false });
+                                    states_temp[index][type] = 'primary';
+                                    states_temp[index][loadingStr] = false;
                                     break;
                                 case 'DANGER':
-                                    setStates({ ...states[index], [type]: 'secondary', [loadingStr]: false });
+                                    states_temp[index][type] = 'secondary';
+                                    states_temp[index][loadingStr] = false;
                                     break;
                                 case 'WAITTING':
-                                    setStates({ ...states[index], [type]: 'default', [loadingStr]: false });
+                                    states_temp[index][type] = 'default';
+                                    states_temp[index][loadingStr] = false;
                                     break;
                             }
+                            setStates(states_temp);
                         } else {
                             console.log(res.body);
+                            handleOpenErrorDialog(type + '攻击测试任务已完成，但无法获得测试结果');
                         }
+                        clearInterval(document.checkingTimerInterval);
                     }).catch(err => console.log(err));
                 }
             } else {
                 console.log(res.body);
+                handleOpenErrorDialog('无法检测到' + type + '攻击测试任务是否完成');
                 clearInterval(document.checkingTimerInterval);
             }
         }).catch(err => console.log(err));
@@ -201,25 +216,51 @@ export default function AttackTest(props) {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
                 //轮询，直到任务完成
-                document.checkingTimerInterval = setInterval(checking, 2000, mission_id, index);
+                document.checkingTimerInterval = setInterval(checking, 2000, mission_id, index, type);
+                //超时
+                document.attackTestTimeout = setTimeout(() => {
+                    switch(type) {
+                        case 'SYN':
+                            states_temp[index].synLoading = false;
+                            break;
+                        case 'UDP':
+                            states_temp[index].udpLoading = false;
+                            break;
+                        case 'SHA':
+                            states_temp[index].shaLoading = false;
+                            break;
+                    }
+                    clearInterval(document.checkingTimerInterval);
+                    setStates(states_temp);
+                    handleOpenErrorDialog(type + '测试超时');
+                }, 40000);
             } else {
                 console.log(res.body);
+                handleOpenErrorDialog( type + '任务创建失败' );
             }
         }).catch(err => console.log(err));        
     }
 
+    {/* 关闭错误警告弹窗 */}
+    const handleCloseErrorDialog = () => { setOpenErrorDialog(false) }
+
+    {/* 打开错误警告弹窗  */}
+    const handleOpenErrorDialog = massege => {
+        setMsg(massege);
+        setOpenErrorDialog(true);
+    }
 
 
     return (
         <Container maxWidth='lg' className={classes.container}>
             {/* {console.log(states,clientList)} */}
+            <ErrorDialog open={openErrorDialog} handleClose={handleCloseErrorDialog} msg={msg} />
             <Paper style={{ height: '85vh' }}>
                 <Typography variant='subtitle1' color='primary' className={classes.title}>
                     在线设备洪水攻击测试
                 </Typography>
                 <Divider />
                 <div style={{ height: '75vh', overflowY: 'scroll' }}>
-                    {/* {loading && <LinearProgress color='secondary' variant='query' />} */}
                     <List>
                         {clientList.map((item, index) => (
                             <ListItem key={index}>
@@ -281,7 +322,7 @@ export default function AttackTest(props) {
                 className={classes.popover}
                 open={openPopover}
                 anchorEl={anchorEl}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 onClose={handleClosePopover}
             >
                 <Typography variant='body2'>
