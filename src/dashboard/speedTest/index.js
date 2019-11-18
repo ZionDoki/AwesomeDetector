@@ -86,12 +86,12 @@ export default function SpeedTest(props) {
     }, []);
 
 
-    {/* 查询ping任务状态，任务完成时请求路由跳数和延迟的信息 */ }
+    {/* 查询ping任务状态，任务完成时请求延迟的信息 */ }
     const checkPing = (mission_id, client_id, index) => {
         var data1 = { mission_id: mission_id };
         var data2 = { client_id: client_id };
         IsFinished(data1).then(res => {
-            console.log(client_id, 'testing state of mission...')
+            console.log(client_id, 'testing state of ping mission...')
             if (res.body.status) {
                 //任务完成后，终止轮询，并请求数据
                 if (res.body.data.isDone) {
@@ -101,8 +101,10 @@ export default function SpeedTest(props) {
                         console.log(client_id, 'require the data')
                         if (res.body.status) {
                             var list = [].concat(onlineMachineList);
+                            var values_temp = [].concat(values);
                             list[index].pingLoading = false;
-                            setValues(res.body.data.client_info);
+                            values_temp[0].value = res.body.data.client_info[0].value;
+                            setValues(values_temp);
                             setOnlineMachineList(list);
                         } else {
                             console.log(res.body);
@@ -118,9 +120,43 @@ export default function SpeedTest(props) {
             }
         }).catch(err => console.log(err));
     }
+    {/* 查询router任务状态，任务完成时请求路由跳的信息 */ }
+    const checkRouter = (mission_id, client_id, index) => {
+        var data1 = { mission_id: mission_id };
+        var data2 = { client_id: client_id };
+        IsFinished(data1).then(res => {
+            console.log(client_id, 'testing state of router mission...')
+            if (res.body.status) {
+                //任务完成后，请求数据，终止超时检测，终止轮询
+                if (res.body.data.isDone) {
+                    console.log(client_id, 'Router mission is done')
+                    clearTimeout(document.routerMissionTimeout);
+                    GetClientInfo(data2).then(res => {
+                        console.log(client_id, 'require the data')
+                        if (res.body.status) {
+                            var list = [].concat(onlineMachineList);
+                            var values_temp = [].concat(values);
+                            list[index].pingLoading = false;
+                            values_temp[1].value = res.body.data.client_info[1].value;
+                            setValues(values_temp);
+                            setOnlineMachineList(list);
+                        } else {
+                            console.log(res.body);
+                            handleOpenErrorDialog('路由跳数的测试任务已完成，但无法获取该数据');
+                        }
+                        clearInterval(document.checkRouterTimerInterval);
+                    }).catch(err => console.log(err));
+                }
+            } else {
+                console.log(res.body);
+                handleOpenErrorDialog('无法检测到路由跳数的测试任务是否完成');
+                clearInterval(document.checkPingTimerInterval);
+            }
+        }).catch(err => console.log(err));
+    }
 
 
-    {/* 请求延迟和路由跳数 */ }
+    {/* 创建测试Ping延迟和路由跳数的任务 */ }
     const handlePing = (id, ip, mac, index) => {
         var pingData = {
             client_id: id,
@@ -128,14 +164,22 @@ export default function SpeedTest(props) {
             mac: mac,
             type: 'PING'
         };
+        var routerData = {
+            client_id: id,
+            ip: ip,
+            mac: mac,
+            type: 'ROUTER'
+        };
         var list = [].concat(onlineMachineList);
         list[index].pingLoading = true;
+        list[index].routerLoading = true;
         setOnlineMachineList(list);
 
         //创建ping任务
         CreateMission(pingData).then(res => {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
+                console.log(mission_id);
                 //轮询检查任务是否完成
                 document.checkPingTimerInterval = setInterval(checkPing, 2000, mission_id, id, index);
                 //超时
@@ -143,12 +187,33 @@ export default function SpeedTest(props) {
                     var list = [].concat(onlineMachineList);
                     list[index].pingLoading = false;                   
                     clearInterval(document.checkPingTimerInterval);
-                    handleOpenErrorDialog('Ping测试超时');
+                    handleOpenErrorDialog('Ping延迟测试超时');
                     setOnlineMachineList(list);
                 }, 15000);
             } else {
                 console.log(res.body); //返回错误信息
                 handleOpenErrorDialog('Ping延迟的测试任务创建失败！')
+            }
+        }).catch(err => console.log(err));
+
+        //创建Router任务
+        CreateMission(routerData).then(res => {
+            if (res.body.status) {
+                var mission_id = res.body.data.mission_id;
+                console.log(mission_id);
+                //轮询检查任务是否完成
+                document.checkRouterTimerInterval = setInterval(checkRouter, 2000, mission_id, id, index);
+                //超时
+                document.routerMissionTimeout = setTimeout(() => {
+                    var list = [].concat(onlineMachineList);
+                    list[index].routerLoading = false;                   
+                    clearInterval(document.checkRouterTimerInterval);
+                    handleOpenErrorDialog('路由跳数测试超时');
+                    setOnlineMachineList(list);
+                }, 25000);
+            } else {
+                console.log(res.body); //返回错误信息
+                handleOpenErrorDialog('路由跳数的测试任务创建失败！')
             }
         }).catch(err => console.log(err));
     }
