@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Overview(props) {
     const classes = useStyles();
-    const [overview, setOverview] = React.useState({Object});
+    const [overview, setOverview] = React.useState(Object);
     const [osInfo, setOsInfo] = React.useState(Array); 
     const [fasterClients, setFasterClients] = React.useState(Array);
     const [deviceNum, setDeviceNum] = React.useState(Array);
@@ -30,8 +30,8 @@ export default function Overview(props) {
         {/* 获取总览信息 */}
         GetOverviewData().then(res => {
             if(res.body.status) {
-                let data = res.body.data.overview;
-                setOverview(data);
+                // let data = res.body.data.overview;
+                setOverview(res.body.data.overview);
             }
             else {
                 console.log(res.body);

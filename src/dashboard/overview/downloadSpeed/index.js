@@ -41,6 +41,13 @@ const useStyles = makeStyles(theme => ({
   export default function DownloadSpeed(props) {
       const classes = useStyles();
       const value = props.value;
+      const printValue = () => {
+        if(value === null) {
+          return '__';
+        } else {
+          return value / (2 ** 10) / ( 2 ** 10 ) + 'Mbps';
+        }
+      }
 
       return (
         <Card className={classes.root}>
@@ -51,7 +58,7 @@ const useStyles = makeStyles(theme => ({
                   当前全网平均下载速率
                 </Typography>
                 <Typography variant="h5">
-                  {`${value}bps`}
+                  {printValue()}
                 </Typography>
               </Grid>
               <Grid item>

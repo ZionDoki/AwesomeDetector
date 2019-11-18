@@ -42,6 +42,13 @@ const useStyles = makeStyles(theme => ({
   export default function UploadSpeed(props) {
       const classes = useStyles();
       const value = props.value;
+      const printValue = () => {
+        if(value === null) {
+          return '__';
+        } else {
+          return value / (2 ** 10) / (2 ** 10) + 'Mbps';
+        }
+      }
 
       return (
         <Card className={classes.root}>
@@ -52,7 +59,7 @@ const useStyles = makeStyles(theme => ({
                   当前全网平均上载速率
                 </Typography>
                 <Typography variant="h5">
-                    {`${value}bps`}
+                    {printValue()}
                 </Typography>
               </Grid>
               <Grid item>
@@ -61,21 +68,6 @@ const useStyles = makeStyles(theme => ({
                 </Avatar>
               </Grid>
             </Grid>
-            {/* <div className={classes.difference}>
-              <ArrowDownwardIcon className={classes.differenceIcon} />
-              <Typography
-                className={classes.differenceValue}
-                variant="body2"
-              >
-                12%
-              </Typography>
-              <Typography
-                color='textSecondary'
-                variant="caption"
-              >
-                Since last month
-              </Typography>
-            </div> */}
           </CardContent>
         </Card>
       );
