@@ -26,8 +26,7 @@ const modify = (data) => {
 export default function DownloadChart(props) {
     const { downData } = props;
     const classes = useStyles();
-    console.log(classes.paperHeight)
-    console.log(downData)
+
     return (
         <Paper className={classes.paperHeight}>
             <Typography color='primary' variant='subtitle1' className={classes.title} >
