@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, TableHead, TableBody, TableRow, TableCell, withStyles } from '@material-ui/core';
+import { Table, TableHead, TableBody, TableRow, TableCell, withStyles, CircularProgress } from '@material-ui/core';
 import { makeStyles, Paper, Typography } from '@material-ui/core';
+import { cyan } from '@material-ui/core/colors';
 
 
 const useStyles = makeStyles(theme => ({
@@ -12,6 +13,20 @@ const useStyles = makeStyles(theme => ({
     paperHeight: {
         height: 290,
     },
+    circularProgress_1: {
+        color: cyan[500],
+        position: 'absolute',
+        zIndex: 2,
+        top: '22%',
+        marginLeft: theme.spacing(-6),
+    },
+    circularProgress_2: {
+        color: cyan[500],
+        position: 'absolute',
+        zIndex: 2,
+        top: '28%',
+        marginLeft: theme.spacing(-6),
+    }
 }));
 
 {/* 自定义Table的样式*/ }
@@ -28,7 +43,7 @@ const StyledTableCell = withStyles(theme => ({
 
 export default function PingTable(props) {
     const classes = useStyles();
-    const { values } = props;
+    const { values, pingLoading, routerLoading } = props;
     return (
         <Paper className={classes.paperHeight}>
             <Typography variant='subtitle1' color='primary' className={classes.title}>
@@ -47,6 +62,7 @@ export default function PingTable(props) {
                             <TableRow key={row.name}>
                                 <StyledTableCell>{row.name}</StyledTableCell>
                                 <StyledTableCell align='right' >{row.value}</StyledTableCell>
+                                { row.name === 'ping' ? ( pingLoading && < CircularProgress size={24} className={classes.circularProgress_1} /> ) : ( routerLoading && < CircularProgress size={24} className={classes.circularProgress_2} /> ) }
                             </TableRow>
                         ))}
                     </TableBody>
@@ -56,11 +72,7 @@ export default function PingTable(props) {
     );
 }
 PingTable.propTypes = {
-    values: PropTypes.array
-}
-PingTable.defaultProps = {
-    values: [
-        {name: 'ping', value: '__'},
-        {name: 'routers', value: '__'}
-    ]
+    values: PropTypes.array,
+    pingLoading: PropTypes.bool,
+    routerLoading: PropTypes.bool,
 }

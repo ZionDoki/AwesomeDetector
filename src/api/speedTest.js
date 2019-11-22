@@ -9,7 +9,7 @@ export function GetList() {
     if(test)
         url = testIP + url;
     return agent.post(url)
-                .send({get_all: true})            
+                .send({get_all:false})            
                 .accept('application/json')
                 .withCredentials();
 }

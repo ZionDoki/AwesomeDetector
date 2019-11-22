@@ -1,5 +1,5 @@
-import React from 'react';
-import { Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
+import React, { useReducer } from 'react';
+import { Radio, RadioGroup, FormControlLabel, CircularProgress } from '@material-ui/core';
 import { withStyles, Dialog, DialogContent, DialogTitle, DialogActions } from '@material-ui/core';
 import { makeStyles, Container, Button, Grid } from '@material-ui/core';
 import { cyan } from '@material-ui/core/colors';
@@ -26,6 +26,13 @@ const useStyles = makeStyles(theme => ({
         marginBottom: theme.spacing(1),
         justifyContent: 'center',
     },
+    chartProgress: {
+        color: cyan[500],
+        position: 'absolute',
+        zIndex: 1,
+        top: '18%',
+        marginLeft: theme.spacing(18),
+    }
 }));
 
 const ColorButton = withStyles(theme => ({
@@ -37,10 +44,29 @@ const ColorButton = withStyles(theme => ({
     },
 }))(Button);
 
+const loadingReducer = (state, action) => {
+    switch (action.type) {
+        case 'OPEN_UPLOAD':
+            return { ...state, uploadChartLoading: true };
+        case 'OPEN_DOWNLOAD':
+            return { ...state, downloadChartLoading: true };
+        case 'OPEN_PING':
+            return { ...state, pingTableLoading: true };
+        case 'OPEN_ROUTER':
+            return { ...state, routerTableLoading: true };
+        case 'CLOSE_UPLOAD':
+            return { ...state, uploadChartLoading: false };
+        case 'CLOSE_DOWNLOAD':
+            return { ...state, downloadChartLoading: false };
+        case 'CLOSE_PING':
+            return { ...state, pingTableLoading: false };
+        case 'CLOSE_ROUTER':
+            return { ...state, routerTableLoading: false };
+    }
+}
+
 export default function SpeedTest(props) {
     const classes = useStyles();
-    const { history } = props;
-
     const [onlineMachineList, setOnlineMachineList] = React.useState(Array);
     const [open, setOpen] = React.useState(false);
     const [openErrorDialog, setOpenErrorDialog] = React.useState(false);
@@ -49,24 +75,24 @@ export default function SpeedTest(props) {
     const [idTo, setIdTo] = React.useState('');
     const [clientList, setClientList] = React.useState(Array);
     const [upData, setUpData] = React.useState(Array);
-    const [downData, setDownData] = React.useState([
-        { timestamp: '12:00', value: 500 },
-        { timestamp: '12:01', value: 500 },
-        { timestamp: '12:02', value: 520 },
-        { timestamp: '12:03', value: 420 },
-        { timestamp: '12:04', value: 480 },
-        { timestamp: '12:05', value: 522 },
-    ]);
+    const [downData, setDownData] = React.useState(Array);
     const [values, setValues] = React.useState([
-        { name: 'ping', value: '__' },
-        { name: 'routers', value: '__' },
+        { name: 'ping', value: '' },
+        { name: 'routers', value: '' },
     ]);
+    const [chartLoading, dispatch] = useReducer(loadingReducer, {
+        uploadChartLoading: false,
+        downloadChartLoading: false,
+        pingTableLoading: false,
+        routerTableLoading: false
+    });
 
 
     {/* 获取客户端列表 */ }
     React.useEffect(() => {
         GetList().then(res => {
             if (res.body.status) {
+                var first_client = res.body.data.clients[0].client_id;
                 var temp = res.body.data.clients.map((item, index) => {
                     // item.p2pLoading = false;
                     item.p2pUploadLoading = false;
@@ -78,9 +104,59 @@ export default function SpeedTest(props) {
                     return item;
                 });
                 setOnlineMachineList(temp);
+                var end_time = Date.parse(new Date());
+                var start_time = end_time - 7 * 24 * 60 * 60 * 1000;
+                var init_data = {
+                    client_id: first_client,
+                    start_time: start_time,
+                    end_time: end_time
+                };
+                // //请求第一个客户端的上行速率
+                // GetUploadSpeed(init_data).then(res => {
+                //     if (res.body.status) {
+                //         var temp = [].concat(res.body.data.upload_speed);
+                //         //转换时间戳格式
+                //         temp.map((item, index) => {
+                //             let dateObj = new Date(item.timestamp);
+                //             let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                //             let D = dateObj.getDate() + ' ';
+                //             let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                //             let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                //             let time = M + D + h + m;
+                //             temp[index].timestamp = time;
+                //         });
+                //         setUpData(temp);
+                //         console.log(init_data, '初始化上行速率', res.body)
+                //     } else {
+                //         console.log(res.body);
+                //         handleOpenErrorDialog('初始化：请求首个客户端的历史上行速率失败');
+                //     }
+                // }).catch(err => console.log(err));
+                // //请求第一个客户端的下行速率
+                // GetDownloadSpeed(init_data).then(res => {
+                //     if (res.body.status) {
+                //         var temp = [].concat(res.body.data.download_speed);
+                //         //转换时间戳格式
+                //         temp.map((item, index) => {
+                //             let dateObj = new Date(item.timestamp);
+                //             let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                //             let D = dateObj.getDate() + ' ';
+                //             let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                //             let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                //             let time = M + D + h + m;
+                //             temp[index].timestamp = time;
+                //         });
+                //         setDownData(temp);
+                //         console.log(first_client, '初始化下行速率', res.body)
+                //     } else {
+                //         console.log(res.body);
+                //         handleOpenErrorDialog('初始化：请求首个客户端的历史下行速率失败');
+                //     }
+                // }).catch(err => console.log(err));
             } else {
                 console.log(res.body.status);
-                history.push('/login');
+                // history.push('/login');
+                handleOpenErrorDialog('初始化：获取在线客户端列表失败');
             }
         }).catch(err => console.log(err));
     }, []);
@@ -110,12 +186,14 @@ export default function SpeedTest(props) {
                             console.log(res.body);
                             handleOpenErrorDialog('Ping延迟的测试任务已完成，但无法获取该数据');
                         }
+                        dispatch({ type: 'CLOSE_PING' });
                         clearInterval(document.checkPingTimerInterval);
                     }).catch(err => console.log(err));
                 }
             } else {
                 console.log(res.body);
                 handleOpenErrorDialog('无法检测到Ping延迟的测试任务是否完成');
+                dispatch({ type: 'CLOSE_PING' });
                 clearInterval(document.checkPingTimerInterval);
             }
         }).catch(err => console.log(err));
@@ -144,12 +222,14 @@ export default function SpeedTest(props) {
                             console.log(res.body);
                             handleOpenErrorDialog('路由跳数的测试任务已完成，但无法获取该数据');
                         }
+                        dispatch({ type: 'CLOSE_ROUTER' });
                         clearInterval(document.checkRouterTimerInterval);
                     }).catch(err => console.log(err));
                 }
             } else {
                 console.log(res.body);
                 handleOpenErrorDialog('无法检测到路由跳数的测试任务是否完成');
+                dispatch({ type: 'CLOSE_ROUTER' });
                 clearInterval(document.checkPingTimerInterval);
             }
         }).catch(err => console.log(err));
@@ -179,15 +259,17 @@ export default function SpeedTest(props) {
         CreateMission(pingData).then(res => {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
-                console.log(mission_id);
+                // console.log(mission_id);
+                dispatch({ type: 'OPEN_PING' });
                 //轮询检查任务是否完成
                 document.checkPingTimerInterval = setInterval(checkPing, 2000, mission_id, id, index);
                 //超时
                 document.pingMissionTimeout = setTimeout(() => {
                     var list = [].concat(onlineMachineList);
-                    list[index].pingLoading = false;                   
+                    list[index].pingLoading = false;
                     clearInterval(document.checkPingTimerInterval);
                     handleOpenErrorDialog('Ping延迟测试超时');
+                    dispatch({ type: 'CLOSE_PING' });
                     setOnlineMachineList(list);
                 }, 15000);
             } else {
@@ -200,15 +282,17 @@ export default function SpeedTest(props) {
         CreateMission(routerData).then(res => {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
-                console.log(mission_id);
+                // console.log(mission_id);
+                dispatch({ type: 'OPEN_ROUTER' });
                 //轮询检查任务是否完成
                 document.checkRouterTimerInterval = setInterval(checkRouter, 2000, mission_id, id, index);
                 //超时
                 document.routerMissionTimeout = setTimeout(() => {
                     var list = [].concat(onlineMachineList);
-                    list[index].routerLoading = false;                   
+                    list[index].routerLoading = false;
                     clearInterval(document.checkRouterTimerInterval);
                     handleOpenErrorDialog('路由跳数测试超时');
+                    dispatch({ type: 'CLOSE_ROUTER' });
                     setOnlineMachineList(list);
                 }, 25000);
             } else {
@@ -242,24 +326,25 @@ export default function SpeedTest(props) {
                             var temp = [].concat(res.body.data.upload_speed);
                             var list = [].concat(onlineMachineList);
                             //关闭环形进度
-                            if(!list[index].p2pUploadLoading) {
+                            if (!list[index].p2pUploadLoading) {
                                 list[index].uploadLoading = false;
                             } else {
                                 list[index].p2pUploadLoading = false;
                             }
-                            
+
                             //转换时间戳格式
                             temp.map((item, index) => {
                                 let dateObj = new Date(item.timestamp);
                                 let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
                                 let D = dateObj.getDate() + ' ';
-                                let h = dateObj.getHours() + ':';
-                                let m = dateObj.getMinutes();
+                                let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
                                 let time = M + D + h + m;
                                 temp[index].timestamp = time;
-                            });                                                       
+                            });
                             setOnlineMachineList(list);
                             setUpData(temp);
+                            dispatch({ type: 'CLOSE_UPLOAD' });
                         } else {
                             console.log(res.body); //返回错误信息
                             handleOpenErrorDialog('测试上行速率的任务已完成，但无法获取上行速率的数据');
@@ -294,8 +379,8 @@ export default function SpeedTest(props) {
                     };
                     var list = [].concat(onlineMachineList);
                     // list[index].downloadLoading = false;
-                     //关闭环形进度
-                     if(!list[index].p2pDownloadLoading) {
+                    //关闭环形进度
+                    if (!list[index].p2pDownloadLoading) {
                         list[index].downloadLoading = false;
                     } else {
                         list[index].p2pDownloadLoading = false;
@@ -305,18 +390,18 @@ export default function SpeedTest(props) {
                         console.log(client_id, 'Require the data of upload speed.')
                         if (res.body.status) {
                             var temp = [].concat(res.body.data.download_speed);
-                            console.log(res.body.data);
                             temp.map((item, index) => {
                                 let dateObj = new Date(item.timestamp);
                                 let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
                                 let D = dateObj.getDate() + ' ';
-                                let h = dateObj.getHours() + ':';
-                                let m = dateObj.getMinutes();
+                                let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
                                 let time = M + D + h + m;
                                 temp[index].timestamp = time;
                             });
                             setDownData(temp);
                             setOnlineMachineList(list);
+                            dispatch({ type: 'CLOSE_DOWNLOAD' });
                         } else {
                             console.log(res.body);
                             handleOpenErrorDialog('测试上行速率的任务已完成，但无法获取上行速率的数据');
@@ -339,7 +424,7 @@ export default function SpeedTest(props) {
         var download = {};
         var num = arguments.length; //用于非箭头函数
         var list = [].concat(onlineMachineList);
-        console.log('创建上下行任务：', list, index);
+
         if (num === 4) {
             //创建测上行速率所需的参数
             upload = {
@@ -379,32 +464,111 @@ export default function SpeedTest(props) {
             list[index].p2pUploadLoading = true;
             list[index].p2pDownloadLoading = true;
             setOnlineMachineList(list);
-        }        
+        }
 
         //创建测上载速率的任务
         CreateMission(upload).then(res => {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
+                dispatch({ type: 'OPEN_UPLOAD' });
                 //轮询，直到任务完成
                 document.checkUploadTimerInterval = setInterval(checkUpload, 2500, mission_id, id, index);
                 //超时
-                if(num === 4) {
+                if (num === 4) {
                     //普通模式
                     document.uploadMissionTimeout = setTimeout(() => {
                         var list = [].concat(onlineMachineList);
+                        var end_time = Date.parse(new Date());
+                        var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
+                        var data2 = {
+                            client_id: id,
+                            start_time: start_time,
+                            end_time: end_time
+                        };
                         list[index].uploadLoading = false;
                         clearInterval(document.checkUploadTimerInterval);
+                        dispatch({ type: 'CLOSE_UPLOAD' });
                         handleOpenErrorDialog('上行速率测试超时');
                         setOnlineMachineList(list);
+                        GetUploadSpeed(data2).then(res => {
+                            if (res.body.status) {
+                                console.log(id, 'Require the data of upload speed.')
+                                var temp = [].concat(res.body.data.upload_speed);
+                                var list = [].concat(onlineMachineList);
+                                //关闭环形进度
+                                if (!list[index].p2pUploadLoading) {
+                                    list[index].uploadLoading = false;
+                                } else {
+                                    list[index].p2pUploadLoading = false;
+                                }
+
+                                //转换时间戳格式
+                                temp.map((item, index) => {
+                                    let dateObj = new Date(item.timestamp);
+                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                    let D = dateObj.getDate() + ' ';
+                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                    let time = M + D + h + m;
+                                    temp[index].timestamp = time;
+                                });
+                                setOnlineMachineList(list);
+                                setUpData(temp);
+                                dispatch({ type: 'CLOSE_UPLOAD' });
+                            } else {
+                                console.log(res.body); //返回错误信息
+                                handleOpenErrorDialog('测试上行速率的任务已完成，但无法获取上行速率的数据');
+                            }
+                            // clearInterval(document.checkUploadTimerInterval);
+                        }).catch(err => console.log(err));
                     }, 40000);
                 } else {
                     //P2P模式
                     document.uploadMissionTimeout = setTimeout(() => {
                         var list = [].concat(onlineMachineList);
-                        list[index].p2pUploadLoading = false;                      
+                        var end_time = Date.parse(new Date());
+                        var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
+                        var data2 = {
+                            client_id: id,
+                            start_time: start_time,
+                            end_time: end_time
+                        };
+                        list[index].p2pUploadLoading = false;
                         clearInterval(document.checkUploadTimerInterval);
+                        dispatch({ type: 'CLOSE_UPLOAD' });
                         handleOpenErrorDialog('P2P模式的上行速率测试超时');
                         setOnlineMachineList(list);
+                        GetUploadSpeed(data2).then(res => {
+                            if (res.body.status) {
+                                console.log(id, 'Require the data of upload speed.')
+                                var temp = [].concat(res.body.data.upload_speed);
+                                var list = [].concat(onlineMachineList);
+                                //关闭环形进度
+                                if (!list[index].p2pUploadLoading) {
+                                    list[index].uploadLoading = false;
+                                } else {
+                                    list[index].p2pUploadLoading = false;
+                                }
+
+                                //转换时间戳格式
+                                temp.map((item, index) => {
+                                    let dateObj = new Date(item.timestamp);
+                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                    let D = dateObj.getDate() + ' ';
+                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                    let time = M + D + h + m;
+                                    temp[index].timestamp = time;
+                                });
+                                setOnlineMachineList(list);
+                                setUpData(temp);
+                                dispatch({ type: 'CLOSE_UPLOAD' });
+                            } else {
+                                console.log(res.body); //返回错误信息
+                                handleOpenErrorDialog('测试上行速率的任务已完成，但无法获取上行速率的数据');
+                            }
+                            // clearInterval(document.checkUploadTimerInterval);
+                        }).catch(err => console.log(err));
                     }, 40000);
                 }
 
@@ -418,27 +582,88 @@ export default function SpeedTest(props) {
         CreateMission(download).then(res => {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
+                dispatch({ type: 'OPEN_DOWNLOAD' });
                 //轮询，直到任务完成
                 document.checkDownloadTimerInterval = setInterval(checkDownload, 2500, mission_id, id, index);
                 //超时
-                if(num === 4) {
+                if (num === 4) {
                     //普通模式
                     document.downloadMissionTimeout = setTimeout(() => {
                         var list = [].concat(onlineMachineList);
-                        list[index].downloadLoading = false;                        
+                        var end_time = Date.parse(new Date());
+                        var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
+                        var data2 = {
+                            client_id: id,
+                            start_time: start_time,
+                            end_time: end_time
+                        };
+                        list[index].downloadLoading = false;
                         clearInterval(document.checkDownloadTimerInterval);
+                        dispatch({ type: 'CLOSE_DOWNLOAD' });
                         handleOpenErrorDialog('下行速率测试超时');
                         setOnlineMachineList(list);
-                    }, 50000);                    
+                        GetDownloadSpeed(data2).then(res => {
+                            console.log(id, 'Require the data of upload speed.')
+                            if (res.body.status) {
+                                var temp = [].concat(res.body.data.download_speed);
+                                temp.map((item, index) => {
+                                    let dateObj = new Date(item.timestamp);
+                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                    let D = dateObj.getDate() + ' ';
+                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                    let time = M + D + h + m;
+                                    temp[index].timestamp = time;
+                                });
+                                setDownData(temp);
+                                setOnlineMachineList(list);
+                                dispatch({ type: 'CLOSE_DOWNLOAD' });
+                            } else {
+                                console.log(res.body);
+                                handleOpenErrorDialog('测试下行速率的任务已完成，但无法获取下行速率的数据');
+                            }
+                            // clearInterval(document.checkDownloadTimerInterval);
+                        }).catch(err => console.log(err));
+                    }, 50000);
                 } else {
                     //P2P模式
                     document.downloadMissionTimeout = setTimeout(() => {
                         var list = [].concat(onlineMachineList);
-                        list[index].p2pDownloadLoading = false;                        
+                        var end_time = Date.parse(new Date());
+                        var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
+                        var data2 = {
+                            client_id: id,
+                            start_time: start_time,
+                            end_time: end_time
+                        };
+                        list[index].p2pDownloadLoading = false;
                         clearInterval(document.checkDownloadTimerInterval);
+                        dispatch({ type: 'CLOSE_DOWNLOAD' });
                         handleOpenErrorDialog('P2P模式的下行速率测试超时');
                         setOnlineMachineList(list);
-                    }, 50000); 
+                        GetDownloadSpeed(data2).then(res => {
+                            console.log(id, 'Require the data of upload speed.')
+                            if (res.body.status) {
+                                var temp = [].concat(res.body.data.download_speed);
+                                temp.map((item, index) => {
+                                    let dateObj = new Date(item.timestamp);
+                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                    let D = dateObj.getDate() + ' ';
+                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                    let time = M + D + h + m;
+                                    temp[index].timestamp = time;
+                                });
+                                setDownData(temp);
+                                setOnlineMachineList(list);
+                                dispatch({ type: 'CLOSE_DOWNLOAD' });
+                            } else {
+                                console.log(res.body);
+                                handleOpenErrorDialog('测试下行速率的任务已完成，但无法获取下行速率的数据');
+                            }
+                            // clearInterval(document.checkDownloadTimerInterval);
+                        }).catch(err => console.log(err));
+                    }, 50000);
                 }
             } else {
                 console.log(res.body);
@@ -480,7 +705,7 @@ export default function SpeedTest(props) {
                 return true;
             }
         });
-         console.log('点击确定按钮后：', temp_index);
+        console.log('点击确定按钮后：', temp_index);
         //创建测上/下行速率的任务，并获取上/下行速率
         handleTestSpeed(id, ip, mac, temp_index, idTo);
     }
@@ -499,12 +724,14 @@ export default function SpeedTest(props) {
             <Grid container spacing={2} className={classes.dataDisplay}>
                 <Grid item xs={12} lg={4}>
                     <UploadChart upData={upData} />
+                    {chartLoading.uploadChartLoading && <CircularProgress size={100} className={classes.chartProgress} />}
                 </Grid>
                 <Grid item xs={12} lg={4}>
                     <DownloadChart downData={downData} />
+                    {chartLoading.downloadChartLoading && <CircularProgress size={100} className={classes.chartProgress} />}
                 </Grid>
                 <Grid item xs={12} lg={3}>
-                    <PingTable values={values} />
+                    <PingTable values={values} pingLoading={chartLoading.pingTableLoading} routerLoading={chartLoading.routerTableLoading} />
                 </Grid>
             </Grid>
             <Grid container className={classes.dataDisplay}>

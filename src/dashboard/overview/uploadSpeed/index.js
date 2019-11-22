@@ -46,7 +46,7 @@ const useStyles = makeStyles(theme => ({
         if(value === null) {
           return '__';
         } else {
-          return value / (2 ** 10) / (2 ** 10) + 'Mbps';
+          return (value/1024/1024).toFixed(2) + 'Mbps';
         }
       }
 

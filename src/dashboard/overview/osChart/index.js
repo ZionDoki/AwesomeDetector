@@ -3,6 +3,8 @@ import { makeStyles, Card, CardHeader, CardContent, Divider } from '@material-ui
 import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
 import PropTypes from 'prop-types';
 
+import MyPie from '../../../component/mypie';
+
 const useStyles = makeStyles(theme => ({
     chartContainer: {
         height: 250
@@ -41,7 +43,8 @@ export default function OSChart(props) {
             <CardContent>
                 <div className={classes.chartContainer}>
                     <ResponsiveContainer>
-                        <PieChart>
+                        <MyPie data={data} />
+                        {/* <PieChart>
                             <Pie data={data} dataKey='value' outerRadius={85} fill="#82ca9d" label={renderCustomizedLabel} labelLine={false}>
                                 {data.map((item, index) => (
                                     <Cell key={index} fill={colors[index]} />
@@ -49,7 +52,7 @@ export default function OSChart(props) {
                             </Pie>
                             <Tooltip />
                             <Legend iconType='star' />
-                        </PieChart>
+                        </PieChart> */}
                     </ResponsiveContainer>
                 </div>
             </CardContent>
