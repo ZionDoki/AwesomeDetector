@@ -502,16 +502,16 @@ export default function SpeedTest(props) {
                                     list[index].p2pUploadLoading = false;
                                 }
 
-                                //转换时间戳格式
-                                temp.map((item, index) => {
-                                    let dateObj = new Date(item.timestamp);
-                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
-                                    let D = dateObj.getDate() + ' ';
-                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
-                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
-                                    let time = M + D + h + m;
-                                    temp[index].timestamp = time;
-                                });
+                                // //转换时间戳格式
+                                // temp.map((item, index) => {
+                                //     let dateObj = new Date(item.timestamp);
+                                //     let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                //     let D = dateObj.getDate() + ' ';
+                                //     let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                //     let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                //     let time = M + D + h + m;
+                                //     temp[index].timestamp = time;
+                                // });
                                 setOnlineMachineList(list);
                                 setUpData(temp);
                                 dispatch({ type: 'CLOSE_UPLOAD' });
@@ -521,7 +521,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkUploadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 40000);
+                    }, 5000);
                 } else {
                     //P2P模式
                     document.uploadMissionTimeout = setTimeout(() => {
@@ -550,16 +550,16 @@ export default function SpeedTest(props) {
                                     list[index].p2pUploadLoading = false;
                                 }
 
-                                //转换时间戳格式
-                                temp.map((item, index) => {
-                                    let dateObj = new Date(item.timestamp);
-                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
-                                    let D = dateObj.getDate() + ' ';
-                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
-                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
-                                    let time = M + D + h + m;
-                                    temp[index].timestamp = time;
-                                });
+                                // //转换时间戳格式
+                                // temp.map((item, index) => {
+                                //     let dateObj = new Date(item.timestamp);
+                                //     let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                //     let D = dateObj.getDate() + ' ';
+                                //     let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                //     let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                //     let time = M + D + h + m;
+                                //     temp[index].timestamp = time;
+                                // });
                                 setOnlineMachineList(list);
                                 setUpData(temp);
                                 dispatch({ type: 'CLOSE_UPLOAD' });
@@ -569,7 +569,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkUploadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 40000);
+                    }, 5000);
                 }
 
             } else {
@@ -603,18 +603,18 @@ export default function SpeedTest(props) {
                         handleOpenErrorDialog('下行速率测试超时');
                         setOnlineMachineList(list);
                         GetDownloadSpeed(data2).then(res => {
-                            console.log(id, 'Require the data of upload speed.')
+                            console.log(id, 'Require the data of download speed.')
                             if (res.body.status) {
                                 var temp = [].concat(res.body.data.download_speed);
-                                temp.map((item, index) => {
-                                    let dateObj = new Date(item.timestamp);
-                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
-                                    let D = dateObj.getDate() + ' ';
-                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
-                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
-                                    let time = M + D + h + m;
-                                    temp[index].timestamp = time;
-                                });
+                                // temp.map((item, index) => {
+                                //     let dateObj = new Date(item.timestamp);
+                                //     let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                //     let D = dateObj.getDate() + ' ';
+                                //     let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                //     let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                //     let time = M + D + h + m;
+                                //     temp[index].timestamp = time;
+                                // });
                                 setDownData(temp);
                                 setOnlineMachineList(list);
                                 dispatch({ type: 'CLOSE_DOWNLOAD' });
@@ -624,7 +624,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkDownloadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 50000);
+                    }, 6000);
                 } else {
                     //P2P模式
                     document.downloadMissionTimeout = setTimeout(() => {
@@ -645,15 +645,15 @@ export default function SpeedTest(props) {
                             console.log(id, 'Require the data of upload speed.')
                             if (res.body.status) {
                                 var temp = [].concat(res.body.data.download_speed);
-                                temp.map((item, index) => {
-                                    let dateObj = new Date(item.timestamp);
-                                    let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
-                                    let D = dateObj.getDate() + ' ';
-                                    let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
-                                    let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
-                                    let time = M + D + h + m;
-                                    temp[index].timestamp = time;
-                                });
+                                // temp.map((item, index) => {
+                                //     let dateObj = new Date(item.timestamp);
+                                //     let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                                //     let D = dateObj.getDate() + ' ';
+                                //     let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                                //     let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                                //     let time = M + D + h + m;
+                                //     temp[index].timestamp = time;
+                                // });
                                 setDownData(temp);
                                 setOnlineMachineList(list);
                                 dispatch({ type: 'CLOSE_DOWNLOAD' });
@@ -663,7 +663,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkDownloadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 50000);
+                    }, 6000);
                 }
             } else {
                 console.log(res.body);
