@@ -17,11 +17,6 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const modify = (data) => {
-    data.some((item, index) => {
-        data[index].value = item.value / 1024 /1024;
-    });
-}
 
 export default function DownloadChart(props) {
     const { downData } = props;
@@ -32,18 +27,7 @@ export default function DownloadChart(props) {
             <Typography color='primary' variant='subtitle1' className={classes.title} >
                 下行速度
             </Typography>
-            {/* <ResponsiveContainer width='90%' height='83%'> */}
                 <MyLine data={downData[0]} style={{ height: cardHeight - 12 }} />
-                {/* <LineChart data={temp} margin={{ top: 10, right: 10, bottom: 5, left: 5 }}>
-                    <Line unit='Mbps' name='下行速率' type='monotone' dataKey='value' stroke='#8884d8' dot={false} />
-                    <XAxis dataKey='timestamp'>
-                        <Label value='时间' position='insideBottomRight' offset={-7} />
-                    </XAxis>
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                </LineChart> */}
-            {/* </ResponsiveContainer> */}
         </Paper>
     );
 }
