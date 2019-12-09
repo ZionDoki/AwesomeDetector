@@ -19,12 +19,6 @@ class App extends React.Component {
       localStorage.setItem('local_key', key);
   }
 
-  //log out
-  signOut = () => {
-    this.setState({ key: undefined });
-    localStorage.removeItem('local_key');
-  }
-
   render() {
     const { key } = this.state;
     // const local_key = localStorage.getItem('local_key');
@@ -34,11 +28,11 @@ class App extends React.Component {
           <Route exact path='/' render={() => <Redirect to='/dashboard' />} />
           <Route 
             path='/dashboard'
-            render={({history, match}) => <Dashboard history={history} match={match} user_key={key} setKey={this.setKey} signOut={this.signOut} />}
+            render={({history, match}) => <Dashboard history={history} match={match} user_key={key} setKey={this.setKey} />}
           />
           <Route
             path="/login"
-            render={({history, match}) => <Login history={history} match={match} user_key={key} setKey={this.setKey} signOut={this.signOut} />}
+            render={({history, match}) => <Login history={history} match={match} user_key={key} setKey={this.setKey} />}
           />
         </Switch>
       </Router>
