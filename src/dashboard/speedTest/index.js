@@ -523,7 +523,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkUploadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 5000);
+                    }, 40000);
                 } else {
                     //P2P模式
                     document.uploadMissionTimeout = setTimeout(() => {
@@ -571,7 +571,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkUploadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 5000);
+                    }, 40000);
                 }
 
             } else {
@@ -626,7 +626,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkDownloadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 6000);
+                    }, 50000);
                 } else {
                     //P2P模式
                     document.downloadMissionTimeout = setTimeout(() => {
@@ -665,7 +665,7 @@ export default function SpeedTest(props) {
                             }
                             // clearInterval(document.checkDownloadTimerInterval);
                         }).catch(err => console.log(err));
-                    }, 6000);
+                    }, 50000);
                 }
             } else {
                 console.log(res.body);
