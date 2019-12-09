@@ -85,35 +85,35 @@ export default function AttackTest(props) {
                     var obj_temp = {};
                     switch (item.syn) {
                         case 'SAFE':
-                            obj_temp.syn = 'primary';
+                            obj_temp.SYN = 'primary';
                             break;
                         case 'DANGER':
-                            obj_temp.syn = 'secondary';
+                            obj_temp.SYN = 'secondary';
                             break;
                         case 'WAITTING':
-                            obj_temp.syn = 'default';
+                            obj_temp.SYN = 'default';
                             break;
                     };
                     switch (item.udp) {
                         case 'SAFE':
-                            obj_temp.udp = 'primary';
+                            obj_temp.UDP = 'primary';
                             break;
                         case 'DANGER':
-                            obj_temp.udp = 'secondary';
+                            obj_temp.UDP = 'secondary';
                             break;
                         case 'WAITTING':
-                            obj_temp.udp = 'default';
+                            obj_temp.UDP = 'default';
                             break;
                     };
                     switch (item.sha) {
                         case 'SAFE':
-                            obj_temp.sha = 'primary';
+                            obj_temp.SHA = 'primary';
                             break;
                         case 'DANGER':
-                            obj_temp.sha = 'secondary';
+                            obj_temp.SHA = 'secondary';
                             break;
                         case 'WAITTING':
-                            obj_temp.sha = 'default';
+                            obj_temp.SHA = 'default';
                             break;
                     };
                     obj_temp.synLoading = false;
@@ -143,10 +143,10 @@ export default function AttackTest(props) {
                     console.log(clientList[index].client_id, type, 'Misstion is done.');                 
                     clearTimeout(document.attackTestTimeout);
                     GetResult(data).then(res => {
-                        console.log(clientList[index].client_id, type, 'Got the data.')
                         if (res.body.status) {
-                            // var type = res.body.data.result.type;
-                            var value = res.body.data.result.value;
+                            console.log(clientList[index].client_id, type, 'Got the data.')
+                            var value = res.body.data.result[0].value;
+                            console.log(value);
                             var states_temp = [].concat(states);
                             var loadingStr;
                             switch(type) {
@@ -174,6 +174,7 @@ export default function AttackTest(props) {
                                     states_temp[index][loadingStr] = false;
                                     break;
                             }
+                            console.log(states_temp[index])
                             setStates(states_temp);
                         } else {
                             console.log(res.body);
@@ -276,10 +277,10 @@ export default function AttackTest(props) {
                                     <MuiThemeProvider theme={theme}>
                                         <Button
                                             variant='contained'
-                                            color={states[index].syn}
+                                            color={states[index].SYN}
                                             className={classes.button}
                                             onClick={() => handleClick(item.client_id, item.ip, item.mac, 'SYN', index)}
-                                            onMouseEnter={(event) => handleOpenPopover(event,states[index].syn)}
+                                            onMouseEnter={(event) => handleOpenPopover(event,states[index].SYN)}
                                             onMouseLeave={handleClosePopover}
                                             disabled={states[index].synLoading}
                                         >
@@ -288,10 +289,10 @@ export default function AttackTest(props) {
                                         { states[index].synLoading && <CircularProgress size={24} className={classes.buttonProgress} /> }
                                         <Button
                                             variant='contained'
-                                            color={states[index].udp}
+                                            color={states[index].UDP}
                                             className={classes.button}
                                             onClick={() => handleClick(item.client_id, item.ip, item.mac, 'UDP', index)}
-                                            onMouseEnter={(event) => {handleOpenPopover(event, states[index].udp)}}
+                                            onMouseEnter={(event) => {handleOpenPopover(event, states[index].UDP)}}
                                             onMouseLeave={handleClosePopover}
                                             disabled={states[index].udpLoading}
                                         >
@@ -300,10 +301,10 @@ export default function AttackTest(props) {
                                         { states[index].udpLoading && <CircularProgress size={24} className={classes.buttonProgress} /> }
                                         <Button
                                             variant='contained'
-                                            color={states[index].sha}
+                                            color={states[index].SHA}
                                             className={classes.button}
                                             onClick={() => handleClick(item.client_id, item.ip, item.mac, 'SHA', index)}
-                                            onMouseEnter={(event) => {handleOpenPopover(event, states[index].sha)}}
+                                            onMouseEnter={(event) => {handleOpenPopover(event, states[index].SHA)}}
                                             onMouseLeave={handleClosePopover}
                                             disabled={states[index].shaLoading}
                                         >
