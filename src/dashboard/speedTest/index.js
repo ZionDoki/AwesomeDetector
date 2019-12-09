@@ -333,16 +333,17 @@ export default function SpeedTest(props) {
                             }
 
                             //转换时间戳格式
-                            temp.map((item, index) => {
-                                let dateObj = new Date(item.timestamp);
-                                let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
-                                let D = dateObj.getDate() + ' ';
-                                let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
-                                let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
-                                let time = M + D + h + m;
-                                temp[index].timestamp = time;
-                            });
+                            // temp.map((item, index) => {
+                            //     let dateObj = new Date(item.timestamp);
+                            //     let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                            //     let D = dateObj.getDate() + ' ';
+                            //     let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                            //     let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                            //     let time = M + D + h + m;
+                            //     temp[index].timestamp = time;
+                            // });
                             setOnlineMachineList(list);
+                            console.log(temp);
                             setUpData(temp);
                             dispatch({ type: 'CLOSE_UPLOAD' });
                         } else {
@@ -390,15 +391,16 @@ export default function SpeedTest(props) {
                         console.log(client_id, 'Require the data of upload speed.')
                         if (res.body.status) {
                             var temp = [].concat(res.body.data.download_speed);
-                            temp.map((item, index) => {
-                                let dateObj = new Date(item.timestamp);
-                                let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
-                                let D = dateObj.getDate() + ' ';
-                                let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
-                                let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
-                                let time = M + D + h + m;
-                                temp[index].timestamp = time;
-                            });
+                            console.log(temp);
+                            // temp.map((item, index) => {
+                            //     let dateObj = new Date(item.timestamp);
+                            //     let M = (dateObj.getMonth() + 1 < 10 ? '0' + (dateObj.getMonth() + 1) : dateObj.getMonth() + 1) + '-';
+                            //     let D = dateObj.getDate() + ' ';
+                            //     let h = (dateObj.getHours() < 10 ? '0' + dateObj.getHours() : dateObj.getHours()) + ':';
+                            //     let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+                            //     let time = M + D + h + m;
+                            //     temp[index].timestamp = time;
+                            // });
                             setDownData(temp);
                             setOnlineMachineList(list);
                             dispatch({ type: 'CLOSE_DOWNLOAD' });
