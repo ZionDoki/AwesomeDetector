@@ -20,12 +20,12 @@ const useStyles = makeStyles(theme => ({
 export default function UploadChart(props) {
     const { upData } = props;
     const classes = useStyles();
-    var temp = upData.map((item, index) => {
-        return {
-            timestamp: item.timestamp,
-            value: (item.value/1024/1024).toFixed(3)
-        };
-    });
+    // var temp = upData.map((item, index) => {
+    //     return {
+    //         timestamp: item.timestamp,
+    //         value: (item.value/1024/1024).toFixed(3)
+    //     };
+    // });
     return (
         <Paper className={classes.paperHeight}>
             <Typography color='primary' variant='subtitle1' className={classes.title} >

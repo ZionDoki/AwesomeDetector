@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, BrowserRouter } from 'react-router-dom';
 import { CssBaseline, AppBar, Toolbar, IconButton, Typography,  Drawer, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -222,17 +222,18 @@ class Dashboard extends React.Component{
                              <ListItemText primary='用户管理' style={{color: '#FFF'}} />
                          </ListItem>
                      </List>
-                     {/* <div className={classes.background} style={{backgroundImage: "url(" + sideImg + ")"}} /> */}
                    </div>
                  </Drawer>
                  <main className={classes.content}>
                     <div className={classes.appBarSpacer} /> 
-                         <Switch>
-                             <Route exact path={`${match.url}`} render={() => <Overview history={history} match={match} />} />
-                             <Route path={`${match.url}/speedtest`} render={() => <SpeedTest history={history} match={match} />} />
-                             <Route path={`${match.url}/attack`} render={() => <AttackTest history={history} match={match} />} />
-                             <Route path={`${match.url}/manage`} render={() => <Manage history={history} match={match}  />} />
-                         </Switch> 
+                        {/* <BrowserRouter> */}
+                            <Switch>
+                                <Route exact path={`${match.url}`} render={() => <Overview history={history} match={match} />} />
+                                <Route path={`${match.url}/speedtest`} render={() => <SpeedTest history={history} match={match} />} />
+                                <Route path={`${match.url}/attack`} render={() => <AttackTest history={history} match={match} />} />
+                                <Route path={`${match.url}/manage`} render={() => <Manage history={history} match={match}  />} />
+                            </Switch> 
+                        {/* </BrowserRouter> */}
                  </main>
             </div>
          );

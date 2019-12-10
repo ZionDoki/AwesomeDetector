@@ -13,14 +13,14 @@ class App extends React.Component {
   }
 
   //login
-  setKey = (key, remember) => {
-    this.setState({ key });
-    if(remember)
-      localStorage.setItem('local_key', key);
-  }
+  // setKey = (key, remember) => {
+  //   this.setState({ key });
+  //   if(remember)
+  //     localStorage.setItem('local_key', key);
+  // }
 
   render() {
-    const { key } = this.state;
+    // const { key } = this.state;
     // const local_key = localStorage.getItem('local_key');
     return (
       <Router>
@@ -28,11 +28,11 @@ class App extends React.Component {
           <Route exact path='/' render={() => <Redirect to='/dashboard' />} />
           <Route 
             path='/dashboard'
-            render={({history, match}) => <Dashboard history={history} match={match} user_key={key} setKey={this.setKey} />}
+            render={({history, match}) => <Dashboard history={history} match={match} />}
           />
           <Route
             path="/login"
-            render={({history, match}) => <Login history={history} match={match} user_key={key} setKey={this.setKey} />}
+            render={({history, match}) => <Login history={history} match={match} />}
           />
         </Switch>
       </Router>
