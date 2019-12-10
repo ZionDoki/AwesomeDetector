@@ -127,7 +127,7 @@ export default function AttackTest(props) {
                 console.log(res.body);
                 handleOpenErrorDialog('在线客户端列表获取失败');
             }
-        }).catch(err => console.log(err))        
+        }).catch(err => console.log(err))
     }, [])
 
 
@@ -139,14 +139,14 @@ export default function AttackTest(props) {
             console.log(clientList[index].client_id, type, 'Checking the state ...');
             if(res.body.status) {
                 //任务完成时，请求数据，终止超时检测，终止轮询
-                if (res.body.data.isDone) {  
-                    console.log(clientList[index].client_id, type, 'Misstion is done.');                 
+                if (res.body.data.isDone) {
+                    console.log(clientList[index].client_id, type, 'Misstion is done.');
                     clearTimeout(document.attackTestTimeout);
                     GetResult(data).then(res => {
                         if (res.body.status) {
                             console.log(clientList[index].client_id, type, 'Got the data.')
                             var value = res.body.data.result[0].value;
-                            console.log(value);
+                            // console.log(value);
                             var states_temp = [].concat(states);
                             var loadingStr;
                             switch(type) {
@@ -174,7 +174,7 @@ export default function AttackTest(props) {
                                     states_temp[index][loadingStr] = false;
                                     break;
                             }
-                            console.log(states_temp[index])
+                            // console.log(states_temp[index])
                             setStates(states_temp);
                         } else {
                             console.log(res.body);
@@ -239,7 +239,7 @@ export default function AttackTest(props) {
                 console.log(res.body);
                 handleOpenErrorDialog( type + '任务创建失败' );
             }
-        }).catch(err => console.log(err));        
+        }).catch(err => console.log(err));
     }
 
     {/* 关闭错误警告弹窗 */}
