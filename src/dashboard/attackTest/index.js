@@ -136,17 +136,16 @@ export default function AttackTest(props) {
         var data = { mission_id: mission_id }
         //检查任务是否完成
         IsFinished(data).then(res => {
-            console.log(clientList[index].client_id, type, 'Checking the state ...');
+            console.log(clientList[index].client_id, mission_id, type, 'Checking the state ...');
             if(res.body.status) {
                 //任务完成时，请求数据，终止超时检测，终止轮询
                 if (res.body.data.isDone) {
-                    console.log(clientList[index].client_id, type, 'Misstion is done.');
+                    console.log(clientList[index].client_id, mission_id, type, 'Misstion is done.');
                     clearTimeout(document.attackTestTimeout);
                     GetResult(data).then(res => {
                         if (res.body.status) {
-                            console.log(clientList[index].client_id, type, 'Got the data.')
+                            console.log(clientList[index].client_id, mission_id, type, 'Got the data.')
                             var value = res.body.data.result[0].value;
-                            // console.log(value);
                             var states_temp = [].concat(states);
                             var loadingStr;
                             switch(type) {
@@ -234,7 +233,7 @@ export default function AttackTest(props) {
                     clearInterval(document.checkingTimerInterval);
                     setStates(states_temp);
                     handleOpenErrorDialog(type + '测试超时');
-                }, 40000);
+                }, 100000);
             } else {
                 console.log(res.body);
                 handleOpenErrorDialog( type + '任务创建失败' );
