@@ -144,8 +144,8 @@ export default function AttackTest(props) {
                     clearTimeout(document.attackTestTimeout);
                     GetResult(data).then(res => {
                         if (res.body.status) {
-                            console.log(clientList[index].client_id, mission_id, type, 'Got the data.')
                             var value = res.body.data.result[0].value;
+                            console.log(clientList[index].client_id, mission_id, type, 'Got the data.', value)
                             var states_temp = [].concat(states);
                             var loadingStr;
                             switch(type) {
@@ -210,6 +210,7 @@ export default function AttackTest(props) {
                 states_temp[index].shaLoading = true;
                 break;
         }
+        var time = type === 'SHA' ? 100000 : 60000;
         setStates(states_temp);
         //创建任务
         CreateMission(data).then(res => {
@@ -233,7 +234,7 @@ export default function AttackTest(props) {
                     clearInterval(document.checkingTimerInterval);
                     setStates(states_temp);
                     handleOpenErrorDialog(type + '测试超时');
-                }, 100000);
+                }, time);
             } else {
                 console.log(res.body);
                 handleOpenErrorDialog( type + '任务创建失败' );

@@ -545,11 +545,9 @@ export default function SpeedTest(props) {
                 ip = item.ip;
                 mac = item.mac;
                 temp_index = index;
-                // console.log('找到id对应的行：',item.client_id, id, index, temp_index);
                 return true;
             }
         });
-        console.log('点击确定按钮后：', temp_index);
         //创建测上/下行速率的任务，并获取上/下行速率
         handleTestSpeed(id, ip, mac, temp_index, idTo);
     }
@@ -566,7 +564,6 @@ export default function SpeedTest(props) {
     return (
         <Container maxWidth='lg' className={classes.container} >
             <Grid container spacing={2} className={classes.dataDisplay}>
-                {console.log('up', upData, 'down', downData)}
                 <Grid item xs={12} lg={4}>
                     <UploadChart upData={upData} />
                     {chartLoading.uploadChartLoading && <CircularProgress size={100} className={classes.chartProgress} />}
