@@ -107,7 +107,7 @@ export default class MyLine extends Component {
   varToReadable = (name) => {
     switch(name) {
       case `timestamp`: return '时间戳'
-      case 'value': return '传输速度'
+      case 'value': return `客户端 ${this.props.clientId} 传输速度`
       default: return name
     }
   }
