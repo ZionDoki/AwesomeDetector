@@ -14,7 +14,7 @@ import Overview from './overview';
 import SpeedTest from './speedTest';
 import AttackTest from './attackTest';
 import Manage from './manage';
-import reactLogo from './reactlogo.png';
+import logo from './logo1.png';
 import sideImg from './sideImg.jpg';
 import Poll from '../api/poll';
 
@@ -74,10 +74,10 @@ const styles = {
         // ...theme.mixins.toolbar, //令侧边栏关闭按钮与导航栏等高
     },
     logo: {
-        width: "50px",
-        top: "15px",
+        width: "42px",
+        top: "12px",
         position: "absolute",
-        marginLeft: 5,
+        marginLeft: 10,
     },
     drawerHeader: {
         marginLeft: '60px', 
@@ -141,7 +141,7 @@ class Dashboard extends React.Component{
                 case '/dashboard/manage':
                     return '用户管理';
                 case '/dashboard/speedtest':
-                    return '网络测速';
+                    return 'QoS测试';
             }
         };
 
@@ -191,7 +191,7 @@ class Dashboard extends React.Component{
                  >
                   <div className={classes.transparentBox}>
                      <div className={classes.drawerHead}>
-                         <img src={reactLogo} alt='logo' className={classes.logo} />
+                         <img src={logo} alt='logo' className={classes.logo} />
                          <Typography variant='h6' className={classes.drawerHeader} >
                              AwesomeDetector
                          </Typography>
@@ -207,7 +207,7 @@ class Dashboard extends React.Component{
                              <ListItemIcon style={{color: '#FFF'}} >
                                  <BarChartIcon />
                              </ListItemIcon>
-                             <ListItemText primary='网络测速' style={{color: '#FFF'}} />
+                             <ListItemText primary='QoS测试' style={{color: '#FFF'}} />
                          </ListItem>
                          <ListItem button component='button' onClick={ () => handleClick(`${match.url}/attack`) } >
                              <ListItemIcon style={{color: '#FFF'}}>
