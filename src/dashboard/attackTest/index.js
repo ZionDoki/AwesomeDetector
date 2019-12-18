@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
         zIndex: 1,
         top: '23%',
         marginLeft: theme.spacing(-10),
-      },
+    },
 }));
 
 const theme = createMuiTheme({
@@ -57,12 +57,12 @@ export default function AttackTest(props) {
     const [states, setStates] = React.useState(Array);
     // const [loading, setLoading] = React.useState(false);
 
-    {/* 关闭Popover */}
+    {/* 关闭Popover */ }
     const handleClosePopover = () => setAnchorEl(null);
 
-    {/* 打开Popover，并显示不同颜色按钮的含义 */}
+    {/* 打开Popover，并显示不同颜色按钮的含义 */ }
     const handleOpenPopover = (event, type) => {
-        switch(type) {
+        switch (type) {
             case 'primary':
                 setPopoverStr('安全');
                 break;
@@ -134,21 +134,24 @@ export default function AttackTest(props) {
     {/* 查询任务状态，任务完成时请求任务结果 */ }
     const checking = (mission_id, index, type) => {
         var data = { mission_id: mission_id }
+        var id = clientList[index].client_id
         //检查任务是否完成
         IsFinished(data).then(res => {
             console.log(clientList[index].client_id, mission_id, type, 'Checking the state ...');
-            if(res.body.status) {
+            if (res.body.status) {
                 //任务完成时，请求数据，终止超时检测，终止轮询
                 if (res.body.data.isDone) {
                     console.log(clientList[index].client_id, mission_id, type, 'Misstion is done.');
-                    clearTimeout(document.attackTestTimeout);
+                    //终止超时监听
+                    clearTimeout(document.attackTestTimeout[id][type]);
+                    //请求数据
                     GetResult(data).then(res => {
                         if (res.body.status) {
                             var value = res.body.data.result[0].value;
-                            console.log(clientList[index].client_id, mission_id, type, 'Got the data.', value)
+                            console.log(id, mission_id, type, 'Got the data.', value)
                             var states_temp = [].concat(states);
                             var loadingStr;
-                            switch(type) {
+                            switch (type) {
                                 case 'SYN':
                                     loadingStr = 'synLoading';
                                     break;
@@ -173,19 +176,32 @@ export default function AttackTest(props) {
                                     states_temp[index][loadingStr] = false;
                                     break;
                             }
-                            // console.log(states_temp[index])
                             setStates(states_temp);
                         } else {
                             console.log(res.body);
                             handleOpenErrorDialog(type + '攻击测试任务已完成，但无法获得测试结果');
                         }
-                        clearInterval(document.checkingTimerInterval);
+                        //终止轮询
+                        clearInterval(document.checkingTimerInterval[id][type]);
                     }).catch(err => console.log(err));
                 }
             } else {
+                var states_temp = [].concat(states);
+                switch (type) {
+                    case 'SYN':
+                        states_temp[index].synLoading = false;
+                        break;
+                    case 'UDP':
+                        states_temp[index].udpLoading = false;
+                        break;
+                    case 'SHA':
+                        states_temp[index].shaLoading = false;
+                        break;
+                }
+                setStates(states_temp);
                 console.log(res.body);
                 handleOpenErrorDialog('无法检测到' + type + '攻击测试任务是否完成');
-                clearInterval(document.checkingTimerInterval);
+                clearInterval(document.checkingTimerInterval[id][type]);
             }
         }).catch(err => console.log(err));
     }
@@ -199,7 +215,7 @@ export default function AttackTest(props) {
             type: type
         };
         var states_temp = [].concat(states);
-        switch(type) {
+        switch (type) {
             case 'SYN':
                 states_temp[index].synLoading = true;
                 break;
@@ -210,17 +226,32 @@ export default function AttackTest(props) {
                 states_temp[index].shaLoading = true;
                 break;
         }
-        var time = type === 'SHA' ? 100000 : 60000;
+        var time = type === 'SHA' ? 80000 : 20000;
         setStates(states_temp);
+        //当计时器对象为空时，初始化计时器对象为{}
+        if(!document.checkingTimerInterval) {
+            document.checkingTimerInterval = {};
+        }
+        if(!document.checkingTimerInterval[id]){
+            document.checkingTimerInterval[id] = {};
+        }
+        //当超时监听对象为空时，初始化超时监听对象为{}
+        if(!document.attackTestTimeout) {
+            document.attackTestTimeout = {}
+        }
+        if(!document.attackTestTimeout[id]) {
+            document.attackTestTimeout[id] = {}
+        }
+        
         //创建任务
         CreateMission(data).then(res => {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
                 //轮询，直到任务完成
-                document.checkingTimerInterval = setInterval(checking, 2000, mission_id, index, type);
+                document.checkingTimerInterval[id][type] = setInterval(checking, 2000, mission_id, index, type);
                 //超时
-                document.attackTestTimeout = setTimeout(() => {
-                    switch(type) {
+                document.attackTestTimeout[id][type] = setTimeout(() => {
+                    switch (type) {
                         case 'SYN':
                             states_temp[index].synLoading = false;
                             break;
@@ -231,21 +262,22 @@ export default function AttackTest(props) {
                             states_temp[index].shaLoading = false;
                             break;
                     }
-                    clearInterval(document.checkingTimerInterval);
+                    clearInterval(document.checkingTimerInterval[id][type]);
+                    console.log('超时', mission_id, type, time);
                     setStates(states_temp);
                     handleOpenErrorDialog(type + '测试超时');
                 }, time);
             } else {
                 console.log(res.body);
-                handleOpenErrorDialog( type + '任务创建失败' );
+                handleOpenErrorDialog(type + '任务创建失败');
             }
         }).catch(err => console.log(err));
     }
 
-    {/* 关闭错误警告弹窗 */}
+    {/* 关闭错误警告弹窗 */ }
     const handleCloseErrorDialog = () => { setOpenErrorDialog(false) }
 
-    {/* 打开错误警告弹窗  */}
+    {/* 打开错误警告弹窗  */ }
     const handleOpenErrorDialog = massege => {
         setMsg(massege);
         setOpenErrorDialog(true);
@@ -280,37 +312,37 @@ export default function AttackTest(props) {
                                             color={states[index].SYN}
                                             className={classes.button}
                                             onClick={() => handleClick(item.client_id, item.ip, item.mac, 'SYN', index)}
-                                            onMouseEnter={(event) => handleOpenPopover(event,states[index].SYN)}
+                                            onMouseEnter={(event) => handleOpenPopover(event, states[index].SYN)}
                                             onMouseLeave={handleClosePopover}
                                             disabled={states[index].synLoading}
                                         >
                                             SYN洪水
                                         </Button>
-                                        { states[index].synLoading && <CircularProgress size={24} className={classes.buttonProgress} /> }
+                                        {states[index].synLoading && <CircularProgress size={24} className={classes.buttonProgress} />}
                                         <Button
                                             variant='contained'
                                             color={states[index].UDP}
                                             className={classes.button}
                                             onClick={() => handleClick(item.client_id, item.ip, item.mac, 'UDP', index)}
-                                            onMouseEnter={(event) => {handleOpenPopover(event, states[index].UDP)}}
+                                            onMouseEnter={(event) => { handleOpenPopover(event, states[index].UDP) }}
                                             onMouseLeave={handleClosePopover}
                                             disabled={states[index].udpLoading}
                                         >
                                             UDP洪水
                                         </Button>
-                                        { states[index].udpLoading && <CircularProgress size={24} className={classes.buttonProgress} /> }
+                                        {states[index].udpLoading && <CircularProgress size={24} className={classes.buttonProgress} />}
                                         <Button
                                             variant='contained'
                                             color={states[index].SHA}
                                             className={classes.button}
                                             onClick={() => handleClick(item.client_id, item.ip, item.mac, 'SHA', index)}
-                                            onMouseEnter={(event) => {handleOpenPopover(event, states[index].SHA)}}
+                                            onMouseEnter={(event) => { handleOpenPopover(event, states[index].SHA) }}
                                             onMouseLeave={handleClosePopover}
                                             disabled={states[index].shaLoading}
                                         >
                                             HTTP长连接
                                         </Button>
-                                        { states[index].shaLoading && <CircularProgress size={24} className={classes.buttonProgress} /> }
+                                        {states[index].shaLoading && <CircularProgress size={24} className={classes.buttonProgress} />}
                                     </MuiThemeProvider>
                                 </ListItemSecondaryAction>
                             </ListItem>
