@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
 
 
 export default function DownloadChart(props) {
-    const { downData } = props;
+    const { downData, clientId } = props;
     const classes = useStyles();
 
     return (
@@ -27,7 +27,7 @@ export default function DownloadChart(props) {
             <Typography color='primary' variant='subtitle1' className={classes.title} >
                 下行速度
             </Typography>
-                <MyLine data={downData[0]} style={{ height: cardHeight - 12 }} />
+                <MyLine data={downData[0]} clientId={clientId} style={{ height: cardHeight - 12 }} />
         </Paper>
     );
 }
