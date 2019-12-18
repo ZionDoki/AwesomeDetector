@@ -17,15 +17,15 @@ const useStyles = makeStyles(theme => ({
         color: cyan[500],
         position: 'absolute',
         zIndex: 2,
-        top: '22%',
-        marginLeft: theme.spacing(-6),
+        top: '25%',
+        marginLeft: theme.spacing(-8),
     },
     circularProgress_2: {
         color: cyan[500],
         position: 'absolute',
         zIndex: 2,
-        top: '28%',
-        marginLeft: theme.spacing(-6),
+        top: '31%',
+        marginLeft: theme.spacing(-8),
     }
 }));
 
@@ -43,31 +43,39 @@ const StyledTableCell = withStyles(theme => ({
 
 export default function PingTable(props) {
     const classes = useStyles();
-    const { values, pingLoading, routerLoading } = props;
+    const { values, pingLoading, routerLoading, clientId } = props;
     return (
         <Paper className={classes.paperHeight}>
             <Typography variant='subtitle1' color='primary' className={classes.title}>
                 Ping
             </Typography>
-            <Paper style={{ margin: '12px' }}>
+            <div style={{ margin: '12px' }}>
+                <Typography variant='subtitle1' align='center' gutterBottom>
+                    客户端{clientId}
+                </Typography>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <StyledTableCell>Items</StyledTableCell>
-                            <StyledTableCell align='right' >Values</StyledTableCell>
+                            <StyledTableCell align='center'>Items</StyledTableCell>
+                            <StyledTableCell align='center' >Values</StyledTableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {values.map(row => (
                             <TableRow key={row.name}>
-                                <StyledTableCell>{row.name}</StyledTableCell>
+                                <StyledTableCell align='center'>{row.name}</StyledTableCell>
                                 <StyledTableCell align='right' >{row.value}</StyledTableCell>
-                                { row.name === 'ping' ? ( pingLoading && < CircularProgress size={24} className={classes.circularProgress_1} /> ) : ( routerLoading && < CircularProgress size={24} className={classes.circularProgress_2} /> ) }
+                                <td>{row.name === 'ping' ? ( 
+                                        pingLoading && < CircularProgress size={24} className={classes.circularProgress_1} /> 
+                                    ) : ( 
+                                        routerLoading && < CircularProgress size={24} className={classes.circularProgress_2} /> 
+                                    ) }
+                                </td>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
-            </Paper>
+            </div>
         </Paper>
     );
 }
