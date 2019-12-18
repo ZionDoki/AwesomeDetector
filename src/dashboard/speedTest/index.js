@@ -65,11 +65,11 @@ const loadingReducer = (state, action) => {
     }
 }
 
-//4个全局变量用以保存上次
+//4个全局变量用以保存上次的数据
 let preUpData = [];
 let preDownData = [];
 let prePing, preRouter;
-
+let preClientId, preClientIdUp, preClientIdDown;
 
 export default function SpeedTest(props) {
     const classes = useStyles();
@@ -92,7 +92,6 @@ export default function SpeedTest(props) {
         pingTableLoading: false,
         routerTableLoading: false
     });
-
 
     {/* 获取客户端列表 */ }
     React.useEffect(() => {
@@ -122,9 +121,8 @@ export default function SpeedTest(props) {
         }).catch(err => console.log(err));
     }, []);
 
-
     {/* 查询ping任务状态，任务完成时请求延迟的信息 */ }
-    const checkPing = (mission_id, client_id, index) => {
+    const checkPing = (mission_id, client_id, index, mission_type1) => {
         var data1 = { mission_id: mission_id };
         var data2 = { client_id: client_id };
         IsFinished(data1).then(res => {
@@ -133,12 +131,14 @@ export default function SpeedTest(props) {
                 //任务完成后，终止轮询，并请求数据
                 if (res.body.data.isDone) {
                     console.log(client_id, 'ping is done')
-                    clearTimeout(document.pingMissionTimeout);
+                    clearTimeout(document.pingMissionTimeout[client_id][mission_type1]);
                     GetClientInfo(data2).then(res => {
                         console.log(client_id, 'require the data')
                         if (res.body.status) {
                             var list = [].concat(onlineMachineList);
                             var values_temp = [].concat(values);
+                            console.log(client_id, mission_type1, res.body.data.client_info[0].value);
+                            preClientId = client_id;
                             list[index].pingLoading = false;
                             values_temp[0].value = res.body.data.client_info[0].value;
                             prePing = values_temp[0].value;
@@ -146,22 +146,23 @@ export default function SpeedTest(props) {
                             setOnlineMachineList(list);
                         } else {
                             console.log(res.body);
-                            handleOpenErrorDialog('Ping延迟的测试任务已完成，但无法获取该数据');
+                            handleOpenErrorDialog('客户端'+ client_id + '：Ping延迟的测试任务已完成，但无法获取该数据');
                         }
                         dispatch({ type: 'CLOSE_PING' });
-                        clearInterval(document.checkPingTimerInterval);
+                        clearInterval(document.checkPingTimerInterval[client_id][mission_type1]);
                     }).catch(err => console.log(err));
                 }
             } else {
                 console.log(res.body);
-                handleOpenErrorDialog('无法检测到Ping延迟的测试任务是否完成');
+                handleOpenErrorDialog('客户端'+ client_id + '：无法检测到Ping延迟的测试任务是否完成');
                 dispatch({ type: 'CLOSE_PING' });
-                clearInterval(document.checkPingTimerInterval);
+                clearInterval(document.checkPingTimerInterval[client_id][mission_type1]);
             }
         }).catch(err => console.log(err));
     }
+
     {/* 查询router任务状态，任务完成时请求路由跳的信息 */ }
-    const checkRouter = (mission_id, client_id, index) => {
+    const checkRouter = (mission_id, client_id, index, mission_type2) => {
         var data1 = { mission_id: mission_id };
         var data2 = { client_id: client_id };
         IsFinished(data1).then(res => {
@@ -170,30 +171,32 @@ export default function SpeedTest(props) {
                 //任务完成后，请求数据，终止超时检测，终止轮询
                 if (res.body.data.isDone) {
                     console.log(client_id, 'Router mission is done')
-                    clearTimeout(document.routerMissionTimeout);
+                    clearTimeout(document.routerMissionTimeout[client_id][mission_type2]);
                     GetClientInfo(data2).then(res => {
                         console.log(client_id, 'require the data')
                         if (res.body.status) {
                             var list = [].concat(onlineMachineList);
                             var values_temp = [].concat(values);
-                            list[index].pingLoading = false;
+                            console.log(client_id, mission_type2, res.body.data.client_info[1].value);
+                            preClientId = client_id;
+                            list[index].routerLoading = false;
                             values_temp[1].value = res.body.data.client_info[1].value;
                             preRouter = values_temp[1].value;
                             setValues(values_temp);
                             setOnlineMachineList(list);
                         } else {
                             console.log(res.body);
-                            handleOpenErrorDialog('路由跳数的测试任务已完成，但无法获取该数据');
+                            handleOpenErrorDialog('客户端'+ client_id + '：路由跳数的测试任务已完成，但无法获取该数据');
                         }
                         dispatch({ type: 'CLOSE_ROUTER' });
-                        clearInterval(document.checkRouterTimerInterval);
+                        clearInterval(document.checkRouterTimerInterval[client_id][mission_type2]);
                     }).catch(err => console.log(err));
                 }
             } else {
                 console.log(res.body);
-                handleOpenErrorDialog('无法检测到路由跳数的测试任务是否完成');
+                handleOpenErrorDialog('客户端'+ client_id + '：无法检测到路由跳数的测试任务是否完成');
                 dispatch({ type: 'CLOSE_ROUTER' });
-                clearInterval(document.checkPingTimerInterval);
+                clearInterval(document.checkRouterTimerInterval[client_id][mission_type2]);
             }
         }).catch(err => console.log(err));
     }
@@ -214,9 +217,40 @@ export default function SpeedTest(props) {
             type: 'ROUTER'
         };
         var list = [].concat(onlineMachineList);
+        var mission_type1 = 'ping';
+        var mission_type2 = 'router';
         list[index].pingLoading = true;
         list[index].routerLoading = true;
         setOnlineMachineList(list);
+
+        //初始化Ping任务的轮询对象
+        if(!document.checkPingTimerInterval) {
+            document.checkPingTimerInterval = {}
+        }
+        if(!document.checkPingTimerInterval[id]) {
+            document.checkPingTimerInterval[id] = {}
+        }
+        //初始化Router任务的轮询对象
+        if(!document.checkRouterTimerInterval) {
+            document.checkRouterTimerInterval = {}
+        }
+        if(!document.checkRouterTimerInterval[id]) {
+            document.checkRouterTimerInterval[id] = {}
+        }
+        //初始化Ping任务的超时监听对象
+        if(!document.pingMissionTimeout){
+            document.pingMissionTimeout = {}
+        }
+        if(!document.pingMissionTimeout[id]){
+            document.pingMissionTimeout[id] = {}
+        }
+        //初始化Router任务的超时监听对象
+        if(!document.routerMissionTimeout){
+            document.routerMissionTimeout = {}
+        }
+        if(!document.routerMissionTimeout[id]){
+            document.routerMissionTimeout[id] = {}
+        }
 
         //创建ping任务
         CreateMission(pingData).then(res => {
@@ -225,19 +259,19 @@ export default function SpeedTest(props) {
                 // console.log(mission_id);
                 dispatch({ type: 'OPEN_PING' });
                 //轮询检查任务是否完成
-                document.checkPingTimerInterval = setInterval(checkPing, 2000, mission_id, id, index);
+                document.checkPingTimerInterval[id][mission_type1] = setInterval(checkPing, 2000, mission_id, id, index, mission_type1);
                 //超时
-                document.pingMissionTimeout = setTimeout(() => {
+                document.pingMissionTimeout[id][mission_type1] = setTimeout(() => {
                     var list = [].concat(onlineMachineList);
                     list[index].pingLoading = false;
-                    clearInterval(document.checkPingTimerInterval);
-                    handleOpenErrorDialog('Ping延迟测试超时');
+                    clearInterval(document.checkPingTimerInterval[id][mission_type1]);
+                    handleOpenErrorDialog('客户端'+ id + '：Ping延迟测试超时');
                     dispatch({ type: 'CLOSE_PING' });
                     setOnlineMachineList(list);
-                }, 60000);
+                }, 70000);
             } else {
                 console.log(res.body); //返回错误信息
-                handleOpenErrorDialog('Ping延迟的测试任务创建失败！')
+                handleOpenErrorDialog('客户端'+ id + '：Ping延迟的测试任务创建失败！')
             }
         }).catch(err => console.log(err));
 
@@ -245,36 +279,35 @@ export default function SpeedTest(props) {
         CreateMission(routerData).then(res => {
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
-                // console.log(mission_id);
                 dispatch({ type: 'OPEN_ROUTER' });
                 //轮询检查任务是否完成
-                document.checkRouterTimerInterval = setInterval(checkRouter, 2000, mission_id, id, index);
+                document.checkRouterTimerInterval[id][mission_type2] = setInterval(checkRouter, 2000, mission_id, id, index, mission_type2);
                 //超时
-                document.routerMissionTimeout = setTimeout(() => {
+                document.routerMissionTimeout[id][mission_type2] = setTimeout(() => {
                     var list = [].concat(onlineMachineList);
                     list[index].routerLoading = false;
-                    clearInterval(document.checkRouterTimerInterval);
-                    handleOpenErrorDialog('路由跳数测试超时');
+                    clearInterval(document.checkRouterTimerInterval[id][mission_type2]);
+                    handleOpenErrorDialog('客户端'+ id + '：路由跳数测试超时');
                     dispatch({ type: 'CLOSE_ROUTER' });
                     setOnlineMachineList(list);
-                }, 60000);
+                }, 75000);
             } else {
                 console.log(res.body); //返回错误信息
-                handleOpenErrorDialog('路由跳数的测试任务创建失败！')
+                handleOpenErrorDialog('客户端'+ id + '：路由跳数的测试任务创建失败！')
             }
         }).catch(err => console.log(err));
     }
 
 
     {/* 检查测上行速率的任务是否完成，完成后获取上行速率 */ }
-    const checkUpload = (mission_id, client_id, index) => {
+    const checkUpload = (mission_id, client_id, index, mission_type1) => {
         const data = { mission_id: mission_id };
         IsFinished(data).then(res => {
-            console.log(client_id, 'Testing state...')
+            console.log(client_id, mission_type1, 'Testing state...')
             if (res.body.status) {
                 //任务完成后，结束轮询，获取近一个月的上行速率
                 if (res.body.data.isDone) {
-                    console.log(client_id, 'Detection of upload speed is done.')
+                    console.log(client_id, mission_type1, 'Detection of upload speed is done.')
                     var end_time = Date.parse(new Date());
                     var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
                     var data2 = {
@@ -282,12 +315,13 @@ export default function SpeedTest(props) {
                         start_time: start_time,
                         end_time: end_time
                     }
-                    clearTimeout(document.uploadMissionTimeout);
+                    clearTimeout(document.uploadMissionTimeout[client_id][mission_type1]);
                     GetUploadSpeed(data2).then(res => {
                         if (res.body.status) {
-                            console.log(client_id, 'Require the data of upload speed.')
+                            console.log(client_id, mission_type1, 'Require the data of upload speed.')
                             var temp = [].concat(res.body.data.upload_speed);
                             var list = [].concat(onlineMachineList);
+                            preClientIdUp = client_id;
                             //关闭环形进度
                             if (!list[index].p2pUploadLoading) {
                                 list[index].uploadLoading = false;
@@ -300,29 +334,29 @@ export default function SpeedTest(props) {
                             dispatch({ type: 'CLOSE_UPLOAD' });
                         } else {
                             console.log(res.body); //返回错误信息
-                            handleOpenErrorDialog('测试上行速率的任务已完成，但无法获取上行速率的数据');
+                            handleOpenErrorDialog('客户端'+ client_id + '：测试上行速率的任务已完成，但无法获取上行速率的数据');
                         }
-                        clearInterval(document.checkUploadTimerInterval);
+                        clearInterval(document.checkUploadTimerInterval[client_id][mission_type1]);
                     }).catch(err => console.log(err));
                 }
             } else {
                 console.log(res.body);
-                handleOpenErrorDialog('无法检测到上行速率的测试任务是否完成');
-                clearInterval(document.checkUploadTimerInterval);
+                handleOpenErrorDialog('客户端'+ client_id + '：无法检测到上行速率的测试任务是否完成');
+                clearInterval(document.checkUploadTimerInterval[client_id][mission_type1]);
             }
         }).catch(err => console.log(err));
     }
 
 
     {/* 检查测下行速率的任务是否完成，完成时请求下行速率 */ }
-    const checkDownload = (mission_id, client_id, index) => {
+    const checkDownload = (mission_id, client_id, index, mission_type2) => {
         var data1 = { mission_id: mission_id };
         IsFinished(data1).then(res => {
-            console.log(client_id, 'Testing state...');
+            console.log(client_id, mission_type2, 'Testing state...');
             if (res.body.status) {
                 //任务完成后，终止轮询，请求下行速率
                 if (res.body.data.isDone) {
-                    console.log(client_id, 'Detection of download speed is done.')
+                    console.log(client_id, mission_type2, 'Detection of download speed is done.')
                     var end_time = Date.parse(new Date());
                     var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
                     var data2 = {
@@ -337,26 +371,27 @@ export default function SpeedTest(props) {
                     } else {
                         list[index].p2pDownloadLoading = false;
                     }
-                    clearTimeout(document.downloadMissionTimeout);
+                    clearTimeout(document.downloadMissionTimeout[client_id][mission_type2]);
                     GetDownloadSpeed(data2).then(res => {
-                        console.log(client_id, 'Require the data of upload speed.')
+                        console.log(client_id, mission_type2, 'Require the data of download speed.')
                         if (res.body.status) {
                             var temp = [].concat(res.body.data.download_speed);
+                            preClientIdDown = client_id;
                             setDownData(temp);
                             preDownData = temp;
                             setOnlineMachineList(list);
                             dispatch({ type: 'CLOSE_DOWNLOAD' });
                         } else {
                             console.log(res.body);
-                            handleOpenErrorDialog('测试上行速率的任务已完成，但无法获取上行速率的数据');
+                            handleOpenErrorDialog('客户端'+ client_id + '：测试下行速率的任务已完成，但无法获取下行速率的数据');
                         }
-                        clearInterval(document.checkDownloadTimerInterval);
+                        clearInterval(document.checkDownloadTimerInterval[client_id][mission_type2]);
                     }).catch(err => console.log(err));
                 }
             } else {
                 console.log(res.body); //返回错误信息
-                handleOpenErrorDialog('无法检测到下行速率的测试任务是否完成');
-                clearInterval(document.checkDownloadTimerInterval);
+                handleOpenErrorDialog('客户端'+ client_id + '：无法检测到下行速率的测试任务是否完成');
+                clearInterval(document.checkDownloadTimerInterval[client_id][mission_type2]);
             }
         }).catch(err => console.log(err));
     }
@@ -368,6 +403,8 @@ export default function SpeedTest(props) {
         var download = {};
         var num = arguments.length; //用于非箭头函数
         var list = [].concat(onlineMachineList);
+        var mission_type1;
+        var mission_type2;
 
         if (num === 4) {
             //创建测上行速率所需的参数
@@ -386,6 +423,8 @@ export default function SpeedTest(props) {
             };
             list[index].uploadLoading = true;
             list[index].downloadLoading = true;
+            mission_type1 = 'upload_mission';
+            mission_type2 = 'download_mission';
             setOnlineMachineList(list);
         }
         else if (num === 5) {
@@ -407,7 +446,39 @@ export default function SpeedTest(props) {
             };
             list[index].p2pUploadLoading = true;
             list[index].p2pDownloadLoading = true;
+            mission_type1 = 'p2p_upload_mission';
+            mission_type2 = 'p2p_download_mission';
             setOnlineMachineList(list);
+        }
+
+        //初始化上载速率任务的轮询对象
+        if(!document.checkUploadTimerInterval) {
+            document.checkUploadTimerInterval = {}
+        }
+        if(!document.checkUploadTimerInterval[id]) {
+            document.checkUploadTimerInterval[id] = {}
+        }
+        //初始化下载速率任务的轮询对象
+        if(!document.checkDownloadTimerInterval) {
+            document.checkDownloadTimerInterval = {}
+        }
+        if(!document.checkDownloadTimerInterval[id]) {
+            document.checkDownloadTimerInterval[id] = {}
+        }
+
+        //初始化上载速率任务的超时监听对象
+        if(!document.uploadMissionTimeout) {
+            document.uploadMissionTimeout = {}
+        }
+        if(!document.uploadMissionTimeout[id]) {
+            document.uploadMissionTimeout[id] = {}
+        }
+        //初始化下载速率任务的超时监听对象
+        if(!document.downloadMissionTimeout) {
+            document.downloadMissionTimeout = {}
+        }
+        if(!document.downloadMissionTimeout[id]) {
+            document.downloadMissionTimeout[id] = {}
         }
 
         //创建测上载速率的任务
@@ -416,9 +487,9 @@ export default function SpeedTest(props) {
                 var mission_id = res.body.data.mission_id;
                 dispatch({ type: 'OPEN_UPLOAD' });
                 //轮询，直到任务完成
-                document.checkUploadTimerInterval = setInterval(checkUpload, 2500, mission_id, id, index);
+                document.checkUploadTimerInterval[id][mission_type1] = setInterval(checkUpload, 2500, mission_id, id, index, mission_type1);
                 //超时
-                document.uploadMissionTimeout = setTimeout(() => {
+                document.uploadMissionTimeout[id][mission_type1] = setTimeout(() => {
                     var list = [].concat(onlineMachineList);
                     var end_time = Date.parse(new Date());
                     var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
@@ -429,40 +500,35 @@ export default function SpeedTest(props) {
                     };
                     if (num === 4) {
                         list[index].uploadLoading = false; //与P2P不同
-                        handleOpenErrorDialog('上行速率测试超时，将显示历史数据');//与P2P不同
+                        handleOpenErrorDialog('客户端'+ id + ':上行速率测试超时，将显示历史数据');//与P2P不同
                     } else {
                         list[index].p2pUploadLoading = false;
-                        handleOpenErrorDialog('P2P模式的上行速率测试超时，将显示历史数据');
+                        handleOpenErrorDialog('客户端'+ id + '：P2P模式的上行速率测试超时，将显示历史数据');
                     }
-                    clearInterval(document.checkUploadTimerInterval);
+                    console.log(id, '超时', num, list[index]);
+                    clearInterval(document.checkUploadTimerInterval[id][mission_type1]);
                     dispatch({ type: 'CLOSE_UPLOAD' });
                     setOnlineMachineList(list);
                     GetUploadSpeed(data2).then(res => {
                         if (res.body.status) {
-                            console.log(id, 'Timeout. Require the data of upload speed.')
+                            console.log(id, '超时，请求历史数据')
                             var temp = [].concat(res.body.data.upload_speed);
                             var list = [].concat(onlineMachineList);
-                            //关闭环形进度
-                            if (!list[index].p2pUploadLoading) {
-                                list[index].uploadLoading = false;
-                            } else {
-                                list[index].p2pUploadLoading = false;
-                            }
+                            preClientIdUp = id;
                             setOnlineMachineList(list);
                             setUpData(temp);
                             preUpData = temp;
                             dispatch({ type: 'CLOSE_UPLOAD' });
                         } else {
                             console.log(res.body); //返回错误信息
-                            handleOpenErrorDialog('测试上行速率的任务已完成，但无法获取上行速率的数据');
+                            handleOpenErrorDialog('客户端'+ id + '：获取上行速率的历史数据失败');
                         }
-                        // clearInterval(document.checkUploadTimerInterval);
                     }).catch(err => console.log(err));
                 }, 40000);
 
             } else {
                 console.log(res.body) //输出错误信息
-                handleOpenErrorDialog('上行速率测试任务创建失败');
+                handleOpenErrorDialog('客户端'+ id + '：上行速率测试任务创建失败');
             }
         }).catch(err => console.log(err))
 
@@ -472,9 +538,9 @@ export default function SpeedTest(props) {
                 var mission_id = res.body.data.mission_id;
                 dispatch({ type: 'OPEN_DOWNLOAD' });
                 //轮询，直到任务完成
-                document.checkDownloadTimerInterval = setInterval(checkDownload, 2500, mission_id, id, index);
+                document.checkDownloadTimerInterval[id][mission_type2] = setInterval(checkDownload, 2500, mission_id, id, index, mission_type2);
                 //超时
-                document.downloadMissionTimeout = setTimeout(() => {
+                document.downloadMissionTimeout[id][mission_type2] = setTimeout(() => {
                     var list = [].concat(onlineMachineList);
                     var end_time = Date.parse(new Date());
                     var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
@@ -486,32 +552,33 @@ export default function SpeedTest(props) {
                     if (num === 4) {
                         //普通模式
                         list[index].downloadLoading = false; //与P2P不同
-                        handleOpenErrorDialog('下行速率测试超时，将显示历史数据'); //与P2P不同
+                        handleOpenErrorDialog('客户端'+ id + '：下行速率测试超时，将显示历史数据'); //与P2P不同
                     } else {
                         //P2P模式
                         list[index].p2pDownloadLoading = false;
-                        handleOpenErrorDialog('P2P模式的下行速率测试超时，将显示历史数据');
+                        handleOpenErrorDialog('客户端'+ id + '：P2P模式的下行速率测试超时，将显示历史数据');
                     }
-                    clearInterval(document.checkDownloadTimerInterval);
+                    clearInterval(document.checkDownloadTimerInterval[id][mission_type2]);
                     dispatch({ type: 'CLOSE_DOWNLOAD' });
                     setOnlineMachineList(list);
                     GetDownloadSpeed(data2).then(res => {
-                        console.log(id, 'Require the data of download speed.')
+                        console.log(id, '超时，请求历史数据')
                         if (res.body.status) {
                             var temp = [].concat(res.body.data.download_speed);
+                            preClientIdDown = id;
                             setDownData(temp);
                             preDownData = temp;
                             setOnlineMachineList(list);
                             dispatch({ type: 'CLOSE_DOWNLOAD' });
                         } else {
                             console.log(res.body);
-                            handleOpenErrorDialog('测试下行速率的任务已完成，但无法获取下行速率的数据');
+                            handleOpenErrorDialog('客户端'+ id + '：获取下行速率的历史数据失败');
                         }
                     }).catch(err => console.log(err));
                 }, 50000);
             } else {
                 console.log(res.body);
-                handleOpenErrorDialog('下行速率测试任务创建失败');
+                handleOpenErrorDialog('客户端'+ id + '：下行速率测试任务创建失败');
             }
         }).catch(err => console.log(err));
     }
@@ -565,15 +632,15 @@ export default function SpeedTest(props) {
         <Container maxWidth='lg' className={classes.container} >
             <Grid container spacing={2} className={classes.dataDisplay}>
                 <Grid item xs={12} lg={4}>
-                    <UploadChart upData={upData} />
+                    <UploadChart upData={upData} clientId={preClientIdUp} />
                     {chartLoading.uploadChartLoading && <CircularProgress size={100} className={classes.chartProgress} />}
                 </Grid>
                 <Grid item xs={12} lg={4}>
-                    <DownloadChart downData={downData} />
+                    <DownloadChart downData={downData} clientId={preClientIdDown} />
                     {chartLoading.downloadChartLoading && <CircularProgress size={100} className={classes.chartProgress} />}
                 </Grid>
                 <Grid item xs={12} lg={3}>
-                    <PingTable values={values} pingLoading={chartLoading.pingTableLoading} routerLoading={chartLoading.routerTableLoading} />
+                    <PingTable values={values} pingLoading={chartLoading.pingTableLoading} routerLoading={chartLoading.routerTableLoading} clientId={preClientId} />
                 </Grid>
             </Grid>
             <Grid container className={classes.dataDisplay}>
