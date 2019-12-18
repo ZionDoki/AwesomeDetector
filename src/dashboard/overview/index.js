@@ -68,7 +68,6 @@ export default function Overview(props) {
 
     return (  
         <Container maxWidth='lg' className={classes.root}>
-            {console.log(overview)}
             <Grid container spacing={3}>
                 <Grid item lg={3} sm={6} xs={12}>
                     <OnlineDevice value={overview.online_clients} />
