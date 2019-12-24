@@ -12,6 +12,8 @@ class App extends React.Component {
     };
   }
 
+ 
+
   //login
   // setKey = (key, remember) => {
   //   this.setState({ key });
@@ -22,6 +24,7 @@ class App extends React.Component {
   render() {
     // const { key } = this.state;
     // const local_key = localStorage.getItem('local_key');
+    console.log(document.cookie);
     return (
       <Router>
         <Switch>

@@ -145,6 +145,9 @@ class Dashboard extends React.Component{
             }
         };
 
+
+        console.log('xixi', document.cookies);
+
         return (
             <div className={classes.root}>
                 <CssBaseline />
