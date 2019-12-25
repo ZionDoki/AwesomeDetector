@@ -18,7 +18,7 @@ export default function DeviceChart(props) {
         let M = (dateObj.getMonth()+1 < 10 ? '0'+(dateObj.getMonth()+1) : dateObj.getMonth()+1) + '-';
         let D = dateObj.getDate() + ' ';
         let h = dateObj.getHours() + ':';
-        let m = dateObj.getMinutes();
+        let m = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
         let time = M + D + h + m;
         data[index].timestamp = time;
     });
