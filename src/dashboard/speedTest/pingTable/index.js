@@ -17,14 +17,14 @@ const useStyles = makeStyles(theme => ({
         color: cyan[500],
         position: 'absolute',
         zIndex: 2,
-        top: '25%',
+        top: '26%',
         marginLeft: theme.spacing(-8),
     },
     circularProgress_2: {
         color: cyan[500],
         position: 'absolute',
         zIndex: 2,
-        top: '31%',
+        top: '32%',
         marginLeft: theme.spacing(-8),
     }
 }));
