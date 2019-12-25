@@ -179,7 +179,8 @@ export default function AttackTest(props) {
                             setStates(states_temp);
                         } else {
                             console.log(res.body);
-                            handleOpenErrorDialog(type + '攻击测试任务已完成，但无法获得测试结果');
+                            let errMsg = type === 'SHA' ? 'HTTP长连接' : type;
+                            handleOpenErrorDialog(errMsg + '攻击测试任务已完成，但无法获得测试结果');
                         }
                         //终止轮询
                         clearInterval(document.checkingTimerInterval[id][type]);
@@ -200,7 +201,8 @@ export default function AttackTest(props) {
                 }
                 setStates(states_temp);
                 console.log(res.body);
-                handleOpenErrorDialog('无法检测到' + type + '攻击测试任务是否完成');
+                let errMsg = type === 'SHA' ? 'HTTP长连接' : type;
+                handleOpenErrorDialog('无法检测到' + errMsg + '攻击测试任务是否完成');
                 clearInterval(document.checkingTimerInterval[id][type]);
             }
         }).catch(err => console.log(err));
@@ -226,7 +228,7 @@ export default function AttackTest(props) {
                 states_temp[index].shaLoading = true;
                 break;
         }
-        var time = type === 'SHA' ? 80000 : 20000;
+        var time = type === 'SHA' ? 80000 : 40000;
         setStates(states_temp);
         //当计时器对象为空时，初始化计时器对象为{}
         if(!document.checkingTimerInterval) {
@@ -245,6 +247,7 @@ export default function AttackTest(props) {
         
         //创建任务
         CreateMission(data).then(res => {
+            let errMsg = type === 'SHA' ? 'HTTP长连接' : type;
             if (res.body.status) {
                 var mission_id = res.body.data.mission_id;
                 //轮询，直到任务完成
@@ -265,11 +268,11 @@ export default function AttackTest(props) {
                     clearInterval(document.checkingTimerInterval[id][type]);
                     console.log('超时', mission_id, type, time);
                     setStates(states_temp);
-                    handleOpenErrorDialog(type + '测试超时');
+                    handleOpenErrorDialog(errMsg + '测试超时');
                 }, time);
             } else {
                 console.log(res.body);
-                handleOpenErrorDialog(type + '任务创建失败');
+                handleOpenErrorDialog(errMsg + '任务创建失败');
             }
         }).catch(err => console.log(err));
     }
