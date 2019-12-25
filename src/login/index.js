@@ -61,13 +61,14 @@ export default function Login(props) {
         }).catch( err => console.log(err) );
     };
 
+
     return (
         <Container maxWidth='xs'>
             <div className={classes.box}>
                 <Avatar className={classes.avatar}>
                     <AccountBoxIcon />
                 </Avatar>
-                <Typography variant='h5' gutterBottom>登录</Typography>
+    <Typography variant='h5' gutterBottom>登录 {props.appName}</Typography>
                 <form onSubmit={handleSubmit}>
                     <TextField 
                         required
