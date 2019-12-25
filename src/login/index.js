@@ -117,10 +117,10 @@ export default function Login(props) {
                             ),
                         }}
                     />
-                    <FormControlLabel
+                    {/* <FormControlLabel
                         control={<Checkbox value='remember' color='primary' checked={values.remember} onChange={handleChange('remember')} />}
                         label='Remember me'
-                    />
+                    /> */}
                     <Button 
                         type='submit'
                         size='large'
