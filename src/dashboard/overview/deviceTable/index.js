@@ -39,7 +39,7 @@ export default function DeviceTable(props) {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <StyledTableCell>设备名称</StyledTableCell>
+                                <StyledTableCell>客户端ID</StyledTableCell>
                                 <StyledTableCell>平均上载速率</StyledTableCell>
                                 <StyledTableCell>平均下载速率</StyledTableCell>
                                 <StyledTableCell>IP地址</StyledTableCell>
@@ -47,11 +47,15 @@ export default function DeviceTable(props) {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {data.map((row, index) => (
+                            {data.sort((a,b) => {
+                                if(a.ds > b.ds) return -1;
+                                else if(a.ds < b.ds) return 1;
+                                else return 0;
+                            }).map((row, index) => (
                                 <TableRow key={index + '-' + row.ip}>
-                                    <TableCell>{row.username}</TableCell>
-                                    <TableCell>{row.us}</TableCell>
-                                    <TableCell>{row.ds}</TableCell>
+                                    <TableCell>{row.client_id}</TableCell>
+                                    <TableCell>{(row.us/1024/1024).toFixed(2) + ' Mbps'}</TableCell>
+                                    <TableCell>{(row.ds/1024/1024).toFixed(2) + ' Mbps'}</TableCell>
                                     <TableCell>{row.ip}</TableCell>
                                     <TableCell>{row.mac}</TableCell>
                                 </TableRow>
