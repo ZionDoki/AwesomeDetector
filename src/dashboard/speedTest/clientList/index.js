@@ -64,7 +64,7 @@ export default function ClientList(props) {
                             <ListItemText
                                 style={{ whiteSpace: 'pre' }}
                                 primary={item.client_id}
-                                secondary={`状态:${item.status}   IP地址:${item.ip}   MAC地址:${item.mac}   操作系统:${item.operation_system}`}
+                                secondary={`状态:${item.status}   IP:${item.ip}   MAC:${item.mac}   OS:${item.operation_system}`}
                             />
                             <ListItemSecondaryAction>
                                 <ColorButton 
