@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
         color: cyan[500],
         position: 'absolute',
         zIndex: 1,
-        top: '18%',
+        top: '21%',
         marginLeft: theme.spacing(18),
     }
 }));
