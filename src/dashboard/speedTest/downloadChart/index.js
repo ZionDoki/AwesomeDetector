@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, Paper, Typography } from '@material-ui/core';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Label, Tooltip, Legend } from 'recharts';
 
 import MyLine from '../../../component/myline';
 
