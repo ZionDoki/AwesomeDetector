@@ -44,6 +44,7 @@ const StyledTableCell = withStyles(theme => ({
 export default function PingTable(props) {
     const classes = useStyles();
     const { values, pingLoading, routerLoading, clientId } = props;
+
     return (
         <Paper className={classes.paperHeight}>
             <Typography variant='subtitle1' color='primary' className={classes.title}>
@@ -61,10 +62,10 @@ export default function PingTable(props) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {values.map(row => (
+                        {values.map((row, index) => (
                             <TableRow key={row.name}>
                                 <StyledTableCell align='center'>{row.name}</StyledTableCell>
-                                <StyledTableCell align='right' >{row.value}</StyledTableCell>
+                                <StyledTableCell align='right' >{ (row.value && index === 0 ) ? row.value + 'ms' : row.value}</StyledTableCell>
                                 <td>{row.name === 'ping' ? ( 
                                         pingLoading && < CircularProgress size={24} className={classes.circularProgress_1} /> 
                                     ) : ( 
