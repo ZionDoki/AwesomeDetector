@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 import { Table, TableHead, TableBody, TableRow, TableCell, withStyles, CircularProgress } from '@material-ui/core';
 import { makeStyles, Paper, Typography } from '@material-ui/core';
 import { cyan } from '@material-ui/core/colors';
@@ -13,19 +14,25 @@ const useStyles = makeStyles(theme => ({
     paperHeight: {
         height: 290,
     },
-    circularProgress_1: {
+    circularProgressCommon: {
         color: cyan[500],
         position: 'absolute',
         zIndex: 2,
-        top: '26%',
-        marginLeft: theme.spacing(-8),
+        [theme.breakpoints.up('lg')]: {
+            marginLeft: theme.spacing(-8),
+        },
+        [theme.breakpoints.down('md')]: {
+            marginLeft: theme.spacing(-23),
+        },
+        [theme.breakpoints.down('sm')]: {
+            marginLeft: theme.spacing(-15),
+        },
+    },
+    circularProgress_1: {
+        top: '25%',
     },
     circularProgress_2: {
-        color: cyan[500],
-        position: 'absolute',
-        zIndex: 2,
-        top: '32%',
-        marginLeft: theme.spacing(-8),
+        top: '28%',
     }
 }));
 
@@ -65,12 +72,12 @@ export default function PingTable(props) {
                         {values.map((row, index) => (
                             <TableRow key={row.name}>
                                 <StyledTableCell align='center'>{row.name}</StyledTableCell>
-                                <StyledTableCell align='right' >{ (row.value && index === 0 ) ? row.value + 'ms' : row.value}</StyledTableCell>
-                                <td>{row.name === 'ping' ? ( 
-                                        pingLoading && < CircularProgress size={24} className={classes.circularProgress_1} /> 
-                                    ) : ( 
-                                        routerLoading && < CircularProgress size={24} className={classes.circularProgress_2} /> 
-                                    ) }
+                                <StyledTableCell align='right' >{(row.value && index === 0) ? row.value + 'ms' : row.value}</StyledTableCell>
+                                <td style={{ position: 'relative' }}>{row.name === 'ping' ? (
+                                    pingLoading && < CircularProgress size={24} className={clsx(classes.circularProgress_1, classes.circularProgressCommon)} />
+                                ) : (
+                                        routerLoading && < CircularProgress size={24} className={clsx(classes.circularProgress_2, classes.circularProgressCommon)} />
+                                    )}
                                 </td>
                             </TableRow>
                         ))}

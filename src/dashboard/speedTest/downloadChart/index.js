@@ -7,12 +7,12 @@ import MyLine from '../../../component/myline';
 const cardHeight = 290;
 
 const useStyles = makeStyles(theme => ({
+    paperHeight: {
+        height: cardHeight
+    },
     title: {
         padding: theme.spacing(1),
         fontWeight: 600,
-    },
-    paperHeight: {
-        height: cardHeight
     },
 }));
 
@@ -26,7 +26,7 @@ export default function DownloadChart(props) {
             <Typography color='primary' variant='subtitle1' className={classes.title} >
                 下行速度
             </Typography>
-                <MyLine data={downData[0]} clientId={clientId} style={{ height: cardHeight - 12 }} />
+            <MyLine data={downData[0]} clientId={clientId} style={{ height: cardHeight - 12 }} />
         </Paper>
     );
 }

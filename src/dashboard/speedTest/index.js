@@ -26,13 +26,38 @@ const useStyles = makeStyles(theme => ({
         marginBottom: theme.spacing(1),
         justifyContent: 'center',
     },
-    chartProgress: {
+    chartProgressUp: {
         color: cyan[500],
         position: 'absolute',
         zIndex: 1,
-        top: '21%',
-        marginLeft: theme.spacing(18),
-    }
+        top: '35%',
+        [theme.breakpoints.up('lg')]: {
+            marginLeft: theme.spacing(18),
+        },
+        [theme.breakpoints.down('md')]: {
+            marginLeft: theme.spacing(45),
+        },
+        [theme.breakpoints.down('sm')]: {
+            marginLeft: theme.spacing(25),
+        },
+    },
+    chartProgressDown: {
+        color: cyan[500],
+        position: 'absolute',
+        zIndex: 1,
+        [theme.breakpoints.up('lg')]: {
+            top: '35%',
+            marginLeft: theme.spacing(18),
+        },
+        [theme.breakpoints.down('md')]: {
+            top: '45%',
+            marginLeft: theme.spacing(45),
+        },
+        [theme.breakpoints.down('sm')]: {
+            top: '45%',
+            marginLeft: theme.spacing(25),
+        },
+    },
 }));
 
 const ColorButton = withStyles(theme => ({
@@ -631,13 +656,13 @@ export default function SpeedTest(props) {
     return (
         <Container maxWidth='lg' className={classes.container} >
             <Grid container spacing={2} className={classes.dataDisplay}>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={4} style={{position:'relative'}}>
                     <UploadChart upData={upData} clientId={preClientIdUp} />
-                    {chartLoading.uploadChartLoading && <CircularProgress size={100} className={classes.chartProgress} />}
+                    {chartLoading.uploadChartLoading && <CircularProgress size={100} className={classes.chartProgressUp} />}
                 </Grid>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={4} style={{position:'relative'}}>
                     <DownloadChart downData={downData} clientId={preClientIdDown} />
-                    {chartLoading.downloadChartLoading && <CircularProgress size={100} className={classes.chartProgress} />}
+                    {chartLoading.downloadChartLoading && <CircularProgress size={100} className={classes.chartProgressDown} />}
                 </Grid>
                 <Grid item xs={12} lg={3}>
                     <PingTable values={values} pingLoading={chartLoading.pingTableLoading} routerLoading={chartLoading.routerTableLoading} clientId={preClientId} />
