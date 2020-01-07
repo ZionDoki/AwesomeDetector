@@ -4,7 +4,7 @@ const fs = electron.remote.require('fs');
 
 const agent = request.agent();
 var test = true;
-var testIP = JSON.parse(fs.readFileSync('config.json', 'utf-8')).testIp;
+var testIP = JSON.parse(fs.readFileSync('/usr/lib/awesome-detector/config.json', 'utf-8')).testIp;
 
 {/* 创建任务：SYN UDP SHA，参数：client_id ip mac type (target_client)*/}
 export function CreateMission(data) {
