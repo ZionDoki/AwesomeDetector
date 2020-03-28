@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, CircularProgress } from '@material-ui/core';
-import { makeStyles, Paper, Button, Typography, Divider } from '@material-ui/core';
+import { withStyles, CircularProgress, Collapse } from '@material-ui/core';
+import { makeStyles, Paper, Button, Typography, Divider, Popover } from '@material-ui/core';
 import { List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from '@material-ui/core';
 import { cyan, green } from '@material-ui/core/colors';
 import Computer from '@material-ui/icons/Computer';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
 const useStyles = makeStyles(theme => ({
     title: {
@@ -15,27 +17,27 @@ const useStyles = makeStyles(theme => ({
         marginRight: theme.spacing(1),
         color: theme.palette.common.white,
     },
-    buttonProgress_1: {
-        color: green[500],
-        position: 'absolute',
-        zIndex: 1,
-        top: '18%',
-        marginLeft: theme.spacing(-10),
-      },
-    buttonProgress_2: {
-        color: green[500],
-        position: 'absolute',
-        zIndex: 1,
-        top: '18%',
-        marginLeft: theme.spacing(-9),
-      },
-    buttonProgress_3: {
+    buttonProgress_p2p: {
         color: green[500],
         position: 'absolute',
         zIndex: 1,
         top: '18%',
         marginLeft: theme.spacing(-8),
-      },
+    },
+    buttonProgress_pingRouter: {
+        color: green[500],
+        position: 'absolute',
+        zIndex: 1,
+        top: '18%',
+        marginLeft: theme.spacing(-9),
+    },
+    buttonProgress_upDown: {
+        color: green[500],
+        position: 'absolute',
+        zIndex: 1,
+        top: '18%',
+        marginLeft: theme.spacing(-7),
+    },
 }));
 
 const ColorButton = withStyles(theme => ({
@@ -49,15 +51,20 @@ const ColorButton = withStyles(theme => ({
 
 export default function ClientList(props) {
     const classes = useStyles();
-    const { list, onClickP2P, onClickPing, onClickTestSpeed } = props;
+    const { list, onClickP2PUpload, onClickP2PDownload, onClickPing, onClickTestUploadSpeed, onClickTestDownloadSpeed, onClickUdpUpload, onClickUdpDownload } = props;
+
+    //操作嵌套列表
+    const [open, setOpen] = React.useState(false);
+    const handleClick = () => {setOpen(!open);}
+
     return (
         <Paper style={{ height: '480px', margin: '10px' }}>
             <Typography variant='subtitle1' className={classes.title} color='primary'>在线设备</Typography>
             <Divider />
-            <div style={{ height: '420px', overflowY: 'scroll' }}>
-                <List>
-                    {list.map((item, index) => (
-                        <ListItem key={index} button>
+            <div style={{ height: '420px', overflowY: 'scroll' }}>              
+                {list.map((item, index) => (
+                    <List key={index} >
+                        <ListItem button onClick={handleClick}>
                             <ListItemIcon>
                                 <Computer />
                             </ListItemIcon>
@@ -66,47 +73,97 @@ export default function ClientList(props) {
                                 primary={item.client_id}
                                 secondary={`状态:${item.status}   IP:${item.ip}   MAC:${item.mac}   OS:${item.operation_system}`}
                             />
-                            <ListItemSecondaryAction>
-                                <ColorButton 
-                                    size='small' 
-                                    variant='contained' 
-                                    color='primary' 
-                                    disabled={ item.p2pDownloadLoading || item.p2pUploadLoading }
-                                    className={classes.button} 
-                                    onClick={() => onClickP2P(item.client_id, index)} 
-                                >
-                                    P2P上/下行测速
-                                </ColorButton>
-                                { item.p2pUploadLoading && <CircularProgress size={22} className={classes.buttonProgress_1} /> }
-                                { item.p2pDownloadLoading && <CircularProgress size={22} className={classes.buttonProgress_1} /> }
-                                <ColorButton 
-                                    size='small' 
-                                    variant='contained' 
-                                    color='primary' 
-                                    disabled={item.pingLoading || item.routerLoading}
-                                    className={classes.button} 
-                                    onClick={() => onClickPing(item.client_id, item.ip, item.mac, index)} 
-                                >
-                                    路由跳数/延迟
-                                </ColorButton>
-                                { item.pingLoading && <CircularProgress size={22} className={classes.buttonProgress_2} /> }
-                                { item.routerLoading && <CircularProgress size={22} className={classes.buttonProgress_2} /> }
-                                <ColorButton
-                                    size='small'
-                                    variant='contained'
-                                    color='primary'
-                                    disabled={item.uploadLoading || item.downloadLoading}
-                                    className={classes.button}
-                                    onClick={() => onClickTestSpeed(item.client_id, item.ip, item.mac, index)} 
-                                >
-                                    上/下行测速
-                                </ColorButton>
-                                { item.uploadLoading && <CircularProgress size={22} className={classes.buttonProgress_3} /> }
-                                { item.downloadLoading && <CircularProgress size={22} className={classes.buttonProgress_3} /> }
-                            </ListItemSecondaryAction>
+                            {open ? <ExpandLess /> : <ExpandMore />}
                         </ListItem>
-                    ))}
-                </List>
+                        <Collapse  in={open} timeout="auto" unmountOnExit>
+                            <List>
+                              <ListItem>
+                                <ListItemText primary="QoS测试" />
+                                <ListItemSecondaryAction>
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.uploadLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickTestUploadSpeed(item.client_id, item.ip, item.mac, index)}
+                                    >
+                                        上行测速
+                                    </ColorButton>
+                                    {item.uploadLoading && <CircularProgress size={22} className={classes.buttonProgress_upDown} />}
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.downloadLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickTestDownloadSpeed(item.client_id, item.ip, item.mac, index)}
+                                    >
+                                        下行测速
+                                    </ColorButton>                                    
+                                    {item.downloadLoading && <CircularProgress size={22} className={classes.buttonProgress_upDown} />}
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.p2pUploadLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickP2PUpload(item.client_id, index)}
+                                    >
+                                        P2P上行测速
+                                    </ColorButton>
+                                    {item.p2pUploadLoading && <CircularProgress size={22} className={classes.buttonProgress_p2p} />}
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.p2pDownloadLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickP2PDownload(item.client_id, index)}
+                                    >
+                                        P2P下行测速
+                                    </ColorButton>                                    
+                                    {item.p2pDownloadLoading && <CircularProgress size={22} className={classes.buttonProgress_p2p} />}
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.udpUploadLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickUdpUpload(item.client_id)}
+                                    >
+                                        UDP上行测速
+                                    </ColorButton>
+                                    {item.udpUploadLoading && <CircularProgress size={22} className={classes.buttonProgress_p2p} />}
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.udpDownloadLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickUdpDownload(item.client_id)}
+                                    >
+                                        UDP下行测速
+                                    </ColorButton>                                    
+                                    {item.udpDownloadLoading && <CircularProgress size={22} className={classes.buttonProgress_p2p} />}
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.pingLoading || item.routerLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickPing(item.client_id, item.ip, item.mac, index)}
+                                    >
+                                        路由跳数/延迟
+                                    </ColorButton>
+                                    {item.pingLoading && <CircularProgress size={22} className={classes.buttonProgress_pingRouter} />}
+                                    {item.routerLoading && <CircularProgress size={22} className={classes.buttonProgress_pingRouter} />}
+                                </ListItemSecondaryAction>
+                              </ListItem>
+                            </List>
+                        </Collapse>
+                    </List>
+                ))}               
             </div>
         </Paper>
     );

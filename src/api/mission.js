@@ -35,3 +35,13 @@ export function GetResult(data) {
                 .accept('application/json')
                 .withCredentials();
 }
+
+{/* 创建UDP任务，参数：client_id, ip, mac, type, duration, speed */}
+export function CreateUdpMission(data) {
+    let url = "/api/v1/add/mission/udp";
+    if(test) url = testIP + url;
+    return agent.post(url)
+                .send(data)
+                .accept('application/json')
+                .withCredentials();
+}
