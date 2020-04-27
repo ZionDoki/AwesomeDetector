@@ -751,7 +751,7 @@ export default function SpeedTest(props) {
         setOpenUdpDownload(true);
     }
 
-    {/* 轮询UDP上行测速任务是否完成 */}
+    {/* 轮询UDP上行测速任务是否完成 */ }
     const checkUdpUpload = (mission_id, client_id, index, mission_type1) => {
         const data = { mission_id: mission_id };
         IsFinished(data).then(res => {
@@ -770,7 +770,7 @@ export default function SpeedTest(props) {
                     clearTimeout(document.udpUploadMissionTimeout[client_id][mission_type1]);
                     GetUploadSpeed(data2).then(res => {
                         if (res.body.status) {
-                            console.log(client_id, mission_type1, 'Require the data of UDP upload speed.')
+                            console.log(client_id, mission_type1, 'Require the data of UDP upload speed.', res.body.data)
                             var temp = [].concat(res.body.data.upload_speed);
                             var list = [].concat(onlineMachineList);
                             preClientIdUp = client_id;
@@ -783,6 +783,8 @@ export default function SpeedTest(props) {
                             console.log(res.body); //返回错误信息
                             handleOpenErrorDialog('客户端' + client_id + '：测试UDP上行速率的任务已完成，但无法获取上行速率的数据');
                         }
+                        list[index].udpUploadLoading = false;
+                        setOnlineMachineList(list);
                         clearInterval(document.checkUdpUploadTimerInterval[client_id][mission_type1]);
                     }).catch(err => console.log(err));
                 }
@@ -800,10 +802,11 @@ export default function SpeedTest(props) {
         var index;
         var list = [].concat(onlineMachineList);
         var mission_type1;
-
+        //关闭对话框
+        handleCloseUdpDialog();
         //创建测上行速率所需的参数
         list.some((item, ix) => {
-            if(item.client_id === id) {
+            if (item.client_id === id) {
                 index = ix;
                 upload.client_id = id;
                 upload.ip = item.ip;
@@ -818,71 +821,73 @@ export default function SpeedTest(props) {
         mission_type1 = 'udp_upload_mission';
         setOnlineMachineList(list);
 
-    //初始化UDP上载速率任务的轮询对象
-    if (!document.checkUdpUploadTimerInterval) {
-        document.checkUdpUploadTimerInterval = {}
-    }
-    if (!document.checkUdpUploadTimerInterval[id]) {
-        document.checkUdpUploadTimerInterval[id] = {}
-    }
-
-    //初始化UDP上载速率任务的超时监听对象
-    if (!document.udpUploadMissionTimeout) {
-        document.udpUploadMissionTimeout = {}
-    }
-    if (!document.udpUploadMissionTimeout[id]) {
-        document.udpUploadMissionTimeout[id] = {}
-    }
-
-    //创建测上载速率的任务
-    CreateUdpMission(upload).then(res => {
-        var list = [].concat(onlineMachineList);
-        list[index].udpUploadLoading = false; //关闭列表中的环形进度条
-        if (res.body.status) {
-            var mission_id = res.body.data.mission_id;
-            dispatch({ type: 'OPEN_UPLOAD' });
-            //轮询，直到任务完成
-            document.checkUdpUploadTimerInterval[id][mission_type1] = setInterval(checkUdpUpload, 2500, mission_id, id, index, mission_type1);
-            //超时
-            document.udpUploadMissionTimeout[id][mission_type1] = setTimeout(() => {
-                var end_time = Date.parse(new Date());
-                var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
-                var data2 = {
-                    client_id: id,
-                    start_time: start_time,
-                    end_time: end_time
-                };
-
-                handleOpenErrorDialog('客户端' + id + ':UDP上行速率测试超时，将显示历史数据');
-                console.log(id, '超时', list[index]);
-                clearInterval(document.checkUdpUploadTimerInterval[id][mission_type1]);
-                //请求历史数据
-                GetUploadSpeed(data2).then(res => {
-                    if (res.body.status) {
-                        console.log(id, '超时，请求历史数据')
-                        var temp = [].concat(res.body.data.upload_speed);
-                        preClientIdUp = id;
-                        setUpData(temp);
-                        preUpData = temp;
-                    } else {
-                        console.log(res.body); //返回错误信息
-                        handleOpenErrorDialog('客户端' + id + '：获取UDP上行速率的历史数据失败');
-                    }
-                    setOnlineMachineList(list); //超时后，请求历史数据成功/失败后，关闭列表中的环形进度条
-                    dispatch({ type: 'CLOSE_UPLOAD' }); //超时后，请求历史数据成功/失败后，关闭上行速率图标的环形进度条
-                }).catch(err => console.log(err));
-            }, 40000);
-
-        } else {
-            console.log(res.body) //输出错误信息
-            setOnlineMachineList(list); //关闭列表中的环形进度条
-            handleOpenErrorDialog('客户端' + id + '：UDP上行速率测试任务创建失败');
+        //初始化UDP上载速率任务的轮询对象
+        if (!document.checkUdpUploadTimerInterval) {
+            document.checkUdpUploadTimerInterval = {}
         }
-    }).catch(err => console.log(err))
+        if (!document.checkUdpUploadTimerInterval[id]) {
+            document.checkUdpUploadTimerInterval[id] = {}
+        }
+
+        //初始化UDP上载速率任务的超时监听对象
+        if (!document.udpUploadMissionTimeout) {
+            document.udpUploadMissionTimeout = {}
+        }
+        if (!document.udpUploadMissionTimeout[id]) {
+            document.udpUploadMissionTimeout[id] = {}
+        }
+
+        //创建测上载速率的任务
+        CreateUdpMission(upload).then(res => {
+            var list = [].concat(onlineMachineList);
+            // list[index].udpUploadLoading = false; //关闭列表中的环形进度条
+            if (res.body.status) {
+                var mission_id = res.body.data.mission_id;
+                dispatch({ type: 'OPEN_UPLOAD' });
+                //轮询，直到任务完成
+                document.checkUdpUploadTimerInterval[id][mission_type1] = setInterval(checkUdpUpload, 2500, mission_id, id, index, mission_type1);
+                //超时
+                document.udpUploadMissionTimeout[id][mission_type1] = setTimeout(() => {
+                    var end_time = Date.parse(new Date());
+                    var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
+                    var data2 = {
+                        client_id: id,
+                        start_time: start_time,
+                        end_time: end_time
+                    };
+
+                    handleOpenErrorDialog('客户端' + id + ':UDP上行速率测试超时，将显示历史数据');
+                    // console.log(id, '超时', list[index]);
+                    clearInterval(document.checkUdpUploadTimerInterval[id][mission_type1]);
+                    //请求历史数据
+                    GetUploadSpeed(data2).then(res => {
+                        if (res.body.status) {
+                            console.log(id, '超时，请求历史数据, 数据是：', res.body.data)
+                            var temp = [].concat(res.body.data.upload_speed);
+                            preClientIdUp = id;
+                            setUpData(temp);
+                            preUpData = temp;
+                        } else {
+                            console.log(res.body); //返回错误信息
+                            handleOpenErrorDialog('客户端' + id + '：获取UDP上行速率的历史数据失败');
+                        }
+                        list[index].udpUploadLoading = false
+                        setOnlineMachineList(list); //超时后，请求历史数据成功/失败后，关闭列表中的环形进度条
+                        dispatch({ type: 'CLOSE_UPLOAD' }); //超时后，请求历史数据成功/失败后，关闭上行速率图标的环形进度条
+                    }).catch(err => console.log(err));
+                }, 40000);
+
+            } else {
+                console.log(res.body) //输出错误信息
+                list[index].udpUploadLoading = false
+                setOnlineMachineList(list); //关闭列表中的环形进度条
+                handleOpenErrorDialog('客户端' + id + '：UDP上行速率测试任务创建失败');
+            }
+        }).catch(err => console.log(err))
 
     }
 
-    {/* 轮询UDP下行测速任务是否完成 */}
+    {/* 轮询UDP下行测速任务是否完成 */ }
     const checkUdpDownload = (mission_id, client_id, index, mission_type1) => {
         const data = { mission_id: mission_id };
         IsFinished(data).then(res => {
@@ -931,10 +936,11 @@ export default function SpeedTest(props) {
         var index;
         var list = [].concat(onlineMachineList);
         var mission_type1;
-
+        //关闭对话框
+        handleCloseUdpDialog();
         //创建测下行速率所需的参数
         list.some((item, ix) => {
-            if(item.client_id === id) {
+            if (item.client_id === id) {
                 index = ix;
                 download.client_id = id;
                 download.ip = item.ip;
@@ -949,133 +955,129 @@ export default function SpeedTest(props) {
         mission_type1 = 'udp_download_mission';
         setOnlineMachineList(list);
 
-    //初始化UDP下载速率任务的轮询对象
-    if (!document.checkUdpDownloadTimerInterval) {
-        document.checkUdpDownloadTimerInterval = {}
-    }
-    if (!document.checkUdpDownloadTimerInterval[id]) {
-        document.checkUdpDownloadTimerInterval[id] = {}
-    }
-
-    //初始化UDP下载速率任务的超时监听对象
-    if (!document.udpDownloadMissionTimeout) {
-        document.udpDownloadMissionTimeout = {}
-    }
-    if (!document.udpDownloadMissionTimeout[id]) {
-        document.udpDownloadMissionTimeout[id] = {}
-    }
-
-    //创建测下载速率的任务
-    CreateUdpMission(download).then(res => {
-        var list = [].concat(onlineMachineList);
-        list[index].udpDownloadLoading = false;
-        if (res.body.status) {
-            var mission_id = res.body.data.mission_id;
-            dispatch({ type: 'OPEN_DOWNLOAD' });
-            //轮询，直到任务完成
-            document.checkUdpDownloadTimerInterval[id][mission_type1] = setInterval(checkUdpDownload, 2500, mission_id, id, index, mission_type1);
-            //超时
-            document.udpDownloadMissionTimeout[id][mission_type1] = setTimeout(() => {
-                // var list = [].concat(onlineMachineList);
-                var end_time = Date.parse(new Date());
-                var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
-                var data2 = {
-                    client_id: id,
-                    start_time: start_time,
-                    end_time: end_time
-                };
-
-                // list[index].udpDownloadLoading = false; //关闭列表中的环形进度条
-                handleOpenErrorDialog('客户端' + id + ':UDP下行速率测试超时，将显示历史数据');
-
-                console.log(id, '超时', list[index]);
-                clearInterval(document.checkUdpDownloadTimerInterval[id][mission_type1]);
-                dispatch({ type: 'CLOSE_DOWNLOAD' }); //关闭下行速率图标的环形进度条
-                setOnlineMachineList(list);//超时关闭列表环形进度条
-                GetDownloadSpeed(data2).then(res => {
-                    if (res.body.status) {
-                        console.log(id, '超时，请求历史数据')
-                        var temp = [].concat(res.body.data.upload_speed);
-                        // var list = [].concat(onlineMachineList);
-                        preClientIdDown = id;
-                        // setOnlineMachineList(list);
-                        setDownData(temp);
-                        preDownData = temp;
-                        // dispatch({ type: 'CLOSE_UPLOAD' });
-                    } else {
-                        console.log(res.body); //返回错误信息
-                        handleOpenErrorDialog('客户端' + id + '：获取UDP下行速率的历史数据失败');
-                    }
-                }).catch(err => console.log(err));
-            }, 40000);
-
-        } else {
-            console.log(res.body) //输出错误信息
-            handleOpenErrorDialog('客户端' + id + '：UDP下行速率测试任务创建失败');
-            setOnlineMachineList(list);//关闭列表环形进度条
+        //初始化UDP下载速率任务的轮询对象
+        if (!document.checkUdpDownloadTimerInterval) {
+            document.checkUdpDownloadTimerInterval = {}
         }
-    }).catch(err => console.log(err))
+        if (!document.checkUdpDownloadTimerInterval[id]) {
+            document.checkUdpDownloadTimerInterval[id] = {}
+        }
+
+        //初始化UDP下载速率任务的超时监听对象
+        if (!document.udpDownloadMissionTimeout) {
+            document.udpDownloadMissionTimeout = {}
+        }
+        if (!document.udpDownloadMissionTimeout[id]) {
+            document.udpDownloadMissionTimeout[id] = {}
+        }
+
+        //创建测下载速率的任务
+        CreateUdpMission(download).then(res => {
+            var list = [].concat(onlineMachineList);
+
+            if (res.body.status) {
+                var mission_id = res.body.data.mission_id;
+                dispatch({ type: 'OPEN_DOWNLOAD' });
+                //轮询，直到任务完成
+                document.checkUdpDownloadTimerInterval[id][mission_type1] = setInterval(checkUdpDownload, 2500, mission_id, id, index, mission_type1);
+                //超时
+                document.udpDownloadMissionTimeout[id][mission_type1] = setTimeout(() => {
+                    var end_time = Date.parse(new Date());
+                    var start_time = end_time - 30 * 24 * 60 * 60 * 1000;
+                    var data2 = {
+                        client_id: id,
+                        start_time: start_time,
+                        end_time: end_time
+                    };
+
+                    handleOpenErrorDialog('客户端' + id + ':UDP下行速率测试超时，将显示历史数据');
+                    clearInterval(document.checkUdpDownloadTimerInterval[id][mission_type1]);
+                    //请求历史数据
+                    GetDownloadSpeed(data2).then(res => {
+                        if (res.body.status) {
+                            console.log(id, '超时，请求历史数据，数据是：', res.body.data)
+                            var temp = [].concat(res.body.data.upload_speed);
+                            preClientIdDown = id;
+                            setDownData(temp);
+                            preDownData = temp;
+                        } else {
+                            console.log(res.body); //返回错误信息
+                            handleOpenErrorDialog('客户端' + id + '：获取UDP下行速率的历史数据失败');
+                        }
+                        dispatch({ type: 'CLOSE_DOWNLOAD' }); //关闭下行速率图标的环形进度条
+                        list[index].udpDownloadLoading = false;
+                        setOnlineMachineList(list);//超时关闭列表环形进度条
+                    }).catch(err => console.log(err));
+                }, 40000);
+
+            } else {
+                console.log(res.body) //输出错误信息
+                handleOpenErrorDialog('客户端' + id + '：UDP下行速率测试任务创建失败');
+                list[index].udpDownloadLoading = false;
+                setOnlineMachineList(list);//关闭列表环形进度条
+            }
+        }).catch(err => console.log(err))
 
     }
 
 
 
-return (
-    <Container maxWidth='lg' className={classes.container} >
-        <Grid container spacing={2} className={classes.dataDisplay}>
-            <Grid item xs={12} lg={4} style={{ position: 'relative' }}>
-                <UploadChart upData={upData} clientId={preClientIdUp} />
-                {chartLoading.uploadChartLoading && <CircularProgress size={100} className={classes.chartProgressUp} />}
+    return (
+        <Container maxWidth='lg' className={classes.container} >
+            <Grid container spacing={2} className={classes.dataDisplay}>
+                <Grid item xs={12} lg={4} style={{ position: 'relative' }}>
+                    <UploadChart upData={upData} clientId={preClientIdUp} />
+                    {chartLoading.uploadChartLoading && <CircularProgress size={100} className={classes.chartProgressUp} />}
+                </Grid>
+                <Grid item xs={12} lg={4} style={{ position: 'relative' }}>
+                    <DownloadChart downData={downData} clientId={preClientIdDown} />
+                    {chartLoading.downloadChartLoading && <CircularProgress size={100} className={classes.chartProgressDown} />}
+                </Grid>
+                <Grid item xs={12} lg={3}>
+                    <PingTable values={values} pingLoading={chartLoading.pingTableLoading} routerLoading={chartLoading.routerTableLoading} clientId={preClientId} />
+                </Grid>
             </Grid>
-            <Grid item xs={12} lg={4} style={{ position: 'relative' }}>
-                <DownloadChart downData={downData} clientId={preClientIdDown} />
-                {chartLoading.downloadChartLoading && <CircularProgress size={100} className={classes.chartProgressDown} />}
+            <Grid container className={classes.dataDisplay}>
+                <Grid item lg={11} xs={12}>
+                    <ClientList
+                        list={onlineMachineList}
+                        onClickP2PUpload={handleClickP2PUpload}
+                        onClickP2PDownload={handleClickP2PDownload}
+                        onClickPing={handlePing}
+                        onClickTestUploadSpeed={handleTestUploadSpeed}
+                        onClickTestDownloadSpeed={handleTestDownloadSpeed}
+                        onClickUdpUpload={handleClickUdpUpload}
+                        onClickUdpDownload={handleClickUdpDownload}
+                    />
+                </Grid>
             </Grid>
-            <Grid item xs={12} lg={3}>
-                <PingTable values={values} pingLoading={chartLoading.pingTableLoading} routerLoading={chartLoading.routerTableLoading} clientId={preClientId} />
-            </Grid>
-        </Grid>
-        <Grid container className={classes.dataDisplay}>
-            <Grid item lg={11} xs={12}>
-                <ClientList
-                    list={onlineMachineList}
-                    onClickP2PUpload={handleClickP2PUpload}
-                    onClickP2PDownload={handleClickP2PDownload}
-                    onClickPing={handlePing}
-                    onClickTestUploadSpeed={handleTestUploadSpeed}
-                    onClickTestDownloadSpeed={handleTestDownloadSpeed}
-                    onClickUdpUpload={handleClickUdpUpload}
-                    onClickUdpDownload={handleClickUdpDownload}
-                />
-            </Grid>
-        </Grid>
-        <ErrorDialog open={openErrorDialog} handleClose={handleCloseErrorDialog} msg={message} />
-        {/* P2P上行测速对话框 */}
-        <P2PDialog
-            open={openP2PUpload}
-            id={id}
-            idTo={idTo}
-            clientList={clientList}
-            type="上行"
-            onClose={handleCloseP2PDialog}
-            onChange={handleChange}
-            onClick={handleP2PUploadTest}
-        />
-        {/* P2P下行测速对话框 */}
-        <P2PDialog
-            open={openP2PDownload}
-            id={id}
-            idTo={idTo}
-            clientList={clientList}
-            type="下行"
-            onClose={handleCloseP2PDialog}
-            onChange={handleChange}
-            onClick={handleP2PDownloadTest}
-        />
-        {/* UDP上行测速对话框 */}
-        <UdpDialog open={openUdpUpload} id={id} type="上行" onClose={handleCloseUdpDialog} onChange={handleChangeUdp} onClick={() => handleTestUdpUploadSpeed(id)} />
-        {/* UDP下行测速对话框 */}
-        <UdpDialog open={openUdpDownload} id={id} type="下行" onClose={handleCloseUdpDialog} onChange={handleChangeUdp} onClick={() => handleTestUdpDownloadSpeed(id)} />
-    </Container>
-);
+            <ErrorDialog open={openErrorDialog} handleClose={handleCloseErrorDialog} msg={message} />
+            {/* P2P上行测速对话框 */}
+            <P2PDialog
+                open={openP2PUpload}
+                id={id}
+                idTo={idTo}
+                clientList={clientList}
+                type="上行"
+                onClose={handleCloseP2PDialog}
+                onChange={handleChange}
+                onClick={handleP2PUploadTest}
+            />
+            {/* P2P下行测速对话框 */}
+            <P2PDialog
+                open={openP2PDownload}
+                id={id}
+                idTo={idTo}
+                clientList={clientList}
+                type="下行"
+                onClose={handleCloseP2PDialog}
+                onChange={handleChange}
+                onClick={handleP2PDownloadTest}
+            />
+            {/* UDP上行测速对话框 */}
+            <UdpDialog open={openUdpUpload} id={id} type="上行" onClose={handleCloseUdpDialog} onChange={handleChangeUdp} onClick={() => handleTestUdpUploadSpeed(id)} />
+            {/* UDP下行测速对话框 */}
+            <UdpDialog open={openUdpDownload} id={id} type="下行" onClose={handleCloseUdpDialog} onChange={handleChangeUdp} onClick={() => handleTestUdpDownloadSpeed(id)} />
+        </Container>
+    );
 }

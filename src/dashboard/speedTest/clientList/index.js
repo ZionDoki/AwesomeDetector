@@ -53,9 +53,15 @@ export default function ClientList(props) {
     const classes = useStyles();
     const { list, onClickP2PUpload, onClickP2PDownload, onClickPing, onClickTestUploadSpeed, onClickTestDownloadSpeed, onClickUdpUpload, onClickUdpDownload } = props;
 
+    const nestedList = {};
+    list.forEach((item, index) => {
+        nestedList[index] = false;
+    })
     //操作嵌套列表
-    const [open, setOpen] = React.useState(false);
-    const handleClick = () => {setOpen(!open);}
+    const [open, setOpen] = React.useState(nestedList);
+    const handleClick = (index) => { setOpen({...open, [index]:!open[index]}) }
+    
+
 
     return (
         <Paper style={{ height: '480px', margin: '10px' }}>
@@ -64,7 +70,7 @@ export default function ClientList(props) {
             <div style={{ height: '420px', overflowY: 'scroll' }}>              
                 {list.map((item, index) => (
                     <List key={index} >
-                        <ListItem button onClick={handleClick}>
+                        <ListItem button onClick={() => handleClick(index)}>
                             <ListItemIcon>
                                 <Computer />
                             </ListItemIcon>
@@ -73,9 +79,9 @@ export default function ClientList(props) {
                                 primary={item.client_id}
                                 secondary={`状态:${item.status}   IP:${item.ip}   MAC:${item.mac}   OS:${item.operation_system}`}
                             />
-                            {open ? <ExpandLess /> : <ExpandMore />}
+                            {open[index] ? <ExpandLess /> : <ExpandMore />}
                         </ListItem>
-                        <Collapse  in={open} timeout="auto" unmountOnExit>
+                        <Collapse  in={open[index]} timeout="auto" unmountOnExit>
                             <List>
                               <ListItem>
                                 <ListItemText primary="QoS测试" />
