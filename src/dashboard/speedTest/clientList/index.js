@@ -97,7 +97,7 @@ export default function ClientList(props) {
                                         上行测速
                                     </ColorButton>
                                     {item.uploadLoading && <CircularProgress size={22} className={classes.buttonProgress_upDown} />}
-                                    <ColorButton
+                                    {/* <ColorButton
                                         size='small'
                                         variant='contained'
                                         color='primary'
@@ -107,7 +107,18 @@ export default function ClientList(props) {
                                     >
                                         下行测速
                                     </ColorButton>                                    
-                                    {item.downloadLoading && <CircularProgress size={22} className={classes.buttonProgress_upDown} />}
+                                    {item.downloadLoading && <CircularProgress size={22} className={classes.buttonProgress_upDown} />} */}
+                                    <ColorButton
+                                        size='small'
+                                        variant='contained'
+                                        color='primary'
+                                        disabled={item.udpDownloadLoading}
+                                        className={classes.button}
+                                        onClick={() => onClickUdpDownload(item.client_id)}
+                                    >
+                                        下行测速
+                                    </ColorButton>                                    
+                                    {item.udpDownloadLoading && <CircularProgress size={22} className={classes.buttonProgress_upDown} />}
                                     <ColorButton
                                         size='small'
                                         variant='contained'
@@ -141,17 +152,7 @@ export default function ClientList(props) {
                                         UDP上行测速
                                     </ColorButton>
                                     {item.udpUploadLoading && <CircularProgress size={22} className={classes.buttonProgress_p2p} />}
-                                    <ColorButton
-                                        size='small'
-                                        variant='contained'
-                                        color='primary'
-                                        disabled={item.udpDownloadLoading}
-                                        className={classes.button}
-                                        onClick={() => onClickUdpDownload(item.client_id)}
-                                    >
-                                        UDP下行测速
-                                    </ColorButton>                                    
-                                    {item.udpDownloadLoading && <CircularProgress size={22} className={classes.buttonProgress_p2p} />}
+                                    
                                     <ColorButton
                                         size='small'
                                         variant='contained'
