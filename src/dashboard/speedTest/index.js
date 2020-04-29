@@ -802,6 +802,7 @@ export default function SpeedTest(props) {
         var index;
         var list = [].concat(onlineMachineList);
         var mission_type1;
+        var expireTime = ( udpProps.duration + 10 ) * 1000;
         //关闭对话框
         handleCloseUdpDialog();
         //创建测上行速率所需的参数
@@ -875,7 +876,7 @@ export default function SpeedTest(props) {
                         setOnlineMachineList(list); //超时后，请求历史数据成功/失败后，关闭列表中的环形进度条
                         dispatch({ type: 'CLOSE_UPLOAD' }); //超时后，请求历史数据成功/失败后，关闭上行速率图标的环形进度条
                     }).catch(err => console.log(err));
-                }, 40000);
+                }, expireTime);
 
             } else {
                 console.log(res.body) //输出错误信息
@@ -936,6 +937,7 @@ export default function SpeedTest(props) {
         var index;
         var list = [].concat(onlineMachineList);
         var mission_type1;
+        var expireTime = ( udpProps.duration + 10 ) * 1000;
         //关闭对话框
         handleCloseUdpDialog();
         //创建测下行速率所需的参数
@@ -1008,7 +1010,7 @@ export default function SpeedTest(props) {
                         list[index].udpDownloadLoading = false;
                         setOnlineMachineList(list);//超时关闭列表环形进度条
                     }).catch(err => console.log(err));
-                }, 40000);
+                }, expireTime);
 
             } else {
                 console.log(res.body) //输出错误信息
